@@ -1,0 +1,19 @@
+# Dependencies
+node_modules/
+
+# Build
+dist/
+*.local
+
+# Logs & caches
+npm-debug.log*
+.DS_Store
+.vite/
+
+# Env (never commit secrets)
+.env
+.env.*
+
+# Editor
+.idea/
+*.swp
