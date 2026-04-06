@@ -37,6 +37,13 @@
 :root {
   --layout-mobile-max-width: 26.875rem;
   --motion-duration-sheet: 200ms;
+  /* 20px — mobile horizontal gutter for all journey screens, sticky footer, bottom sheets */
+  --journey-inline-padding: var(--space-5);
+  /*
+   * Scrollable page bottom padding above fixed StickyPriceFooter.
+   * (--space-28 does not exist in @acko/tokens; invalid var collapsed clearance and hid content behind the footer.)
+   */
+  --journey-sticky-footer-clearance: calc(var(--space-24) + var(--space-12));
 }
 
 /* Bottom sheet: overlay fade + panel ease (easing from @acko/tokens) */
@@ -102,51 +109,132 @@
   outline-offset: 2px;
 }
 
-/* Plan selection cards: border-only selected state (no full-card tint) */
+/*
+ * Mobile header back: @acko/button iconOnly hides children in .sr-only — the visible
+ * glyph must use iconLeft / iconRight (see Button.tsx).
+ */
+.mobile-header-back {
+  color: var(--color-text-primary);
+}
+
+/*
+ * Button DS forces .acko-btn-sm .acko-btn-icon to ~14px — Lucide size={…} is ignored.
+ * Let the back chevron render at 1.5× a typical 22px glyph (33px).
+ */
+.mobile-header-back .acko-btn-icon {
+  width: 24px;
+  height: 24px;
+}
+
+.mobile-header-back .acko-btn-icon svg {
+  width: 100%;
+  height: 100%;
+  stroke: currentColor;
+  color: var(--color-text-primary);
+}
+
+/*
+ * Same left edge as title/body: DS icon-only buttons are fixed width and center the
+ * glyph — the chevron sat ~8px right of the text column. Flush icon to the content edge.
+ */
+.mobile-header-back.acko-btn {
+  justify-content: flex-start;
+}
+
+.mobile-header-back.acko-btn-icon-only.acko-btn-sm {
+  width: auto;
+  min-width: 44px;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.mobile-header-back .acko-btn-content {
+  justify-content: flex-start;
+}
+
+/* Full-bleed divider under nav (offsets parent horizontal padding on plan screen). */
+.mobile-header-divider-bleed {
+  box-sizing: border-box;
+  margin-left: calc(-1 * var(--journey-inline-padding));
+  margin-right: calc(-1 * var(--journey-inline-padding));
+  width: calc(100% + 2 * var(--journey-inline-padding));
+}
+
+/* “learn more” link — match body-md subtitle line in plan header */
+.mobile-header-subtitle .acko-btn-sm .acko-btn-label {
+  font-size: var(--font-body-md-size);
+}
+
+/* Select plan subtitle: natural wrap; tighter line than default body-md (16px) */
+.mobile-header-plan-subtitle {
+  width: 100%;
+  max-width: 100%;
+  text-wrap: wrap;
+  line-height: 16px;
+}
+
+/* Plan selection cards: 1px idle (match outline Card); 2px selected. No DS focus-within ring (avoids double purple edge). */
 .plan-radio-card.acko-radio-card-item {
   position: relative;
   box-sizing: border-box;
-  border-width: 2px;
+  border-width: 1px;
   border-style: solid;
   border-color: var(--color-card-outline-border);
   background-color: var(--color-card-elevated-bg);
+  padding: 20px;
+  border-radius: var(--radius-4xl);
+  transition:
+    border-color 150ms ease,
+    border-width 150ms ease,
+    background-color 150ms ease;
 }
 
 .plan-radio-card.acko-radio-card-item.acko-radio-item-selected {
+  border-width: 2px;
   border-color: var(--color-primary);
   background-color: var(--color-card-elevated-bg);
+}
+
+/* Override @acko/css .acko-radio-card-item:focus-within { box-shadow } — selection border is enough; keyboard focus uses .acko-radio-native:focus-visible + .acko-radio-circle */
+.plan-radio-card.acko-radio-card-item:focus-within {
+  box-shadow: none;
 }
 
 @media (hover: hover) and (pointer: fine) {
   .plan-radio-card.acko-radio-card-item:hover:not(.acko-radio-item-disabled):not(.acko-radio-item-selected) {
     background-color: var(--color-card-elevated-bg);
+    border-width: 1px;
     border-color: var(--color-primary-muted);
   }
 
   .plan-radio-card.acko-radio-card-item.acko-radio-item-selected:hover:not(.acko-radio-item-disabled) {
     background-color: var(--color-card-elevated-bg);
+    border-width: 2px;
     border-color: var(--color-primary-hover);
   }
 }
 
-/* Plan card: badge row above; radio aligns with plan title (not with badge) */
+/* Plan card: badge row full-width; radio aligns with plan title; pointers live in main (full width). */
 .plan-radio-card.plan-radio-card--plan-grid.acko-radio-card-item {
   display: grid;
   grid-template-columns: auto 1fr;
   column-gap: var(--space-3);
-  row-gap: var(--space-3);
-  align-items: start;
+  row-gap: var(--space-2);
+  /* Center radio with title row: start alignment made the small circle sit high vs cap height */
+  align-items: center;
 }
 
 .plan-radio-card.plan-radio-card--plan-grid:not(.plan-radio-card--has-badge) {
   grid-template-areas:
-    "radio main";
+    "radio title"
+    "main main";
 }
 
 .plan-radio-card.plan-radio-card--plan-grid.plan-radio-card--has-badge {
   grid-template-areas:
-    ". badge"
-    "radio main";
+    "badge badge"
+    "radio title"
+    "main main";
 }
 
 .plan-radio-card-radio {
@@ -155,17 +243,103 @@
 
 .plan-radio-card-badge-slot {
   grid-area: badge;
+  justify-self: start;
+  /* Full-width row so left edge lines up with radio column (not column 2 only). */
+  width: 100%;
+}
+
+/* Shimmer sweep on “Most popular” — highlight stays behind label text */
+.plan-radio-card-most-popular-shimmer {
+  display: inline-flex;
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-full);
+  vertical-align: middle;
+}
+
+.plan-radio-card-most-popular-shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(
+    100deg,
+    transparent 0%,
+    transparent 38%,
+    rgb(255 255 255 / 0.42) 50%,
+    transparent 62%,
+    transparent 100%
+  );
+  width: 180%;
+  left: -40%;
+  animation: plan-radio-card-badge-shimmer 2.6s ease-in-out infinite;
+}
+
+.plan-radio-card-most-popular-badge {
+  position: relative;
+  z-index: 2;
+  margin-bottom: 2px;
+}
+
+@keyframes plan-radio-card-badge-shimmer {
+  0% {
+    transform: translateX(-28%);
+  }
+
+  100% {
+    transform: translateX(28%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .plan-radio-card-most-popular-shimmer::after {
+    animation: none;
+    opacity: 0;
+  }
+}
+
+.plan-radio-card-title {
+  grid-area: title;
+}
+
+/* Tenure + coverage rows: one list, shared type + vertical rhythm */
+.plan-radio-card-pointer-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.plan-radio-card-pointer-item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.plan-radio-card-pointer-item .plan-radio-card-pointer-icon {
+  flex-shrink: 0;
+  margin-top: var(--space-1);
+  color: var(--color-success-text);
 }
 
 .plan-radio-card-main {
   grid-area: main;
+  margin-top: 0;
+  /* Title row → pointers: grid row-gap + this padding */
+  padding-top: calc(var(--space-2) + var(--space-1));
+  gap: 0;
 }
 
 .content-container {
   width: 100%;
   max-width: 1280px;
   margin: 0 auto;
-  padding-inline: var(--space-4);
+  padding-inline: var(--journey-inline-padding);
 }
 
 @media (min-width: 768px) {

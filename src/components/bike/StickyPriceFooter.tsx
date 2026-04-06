@@ -33,70 +33,90 @@ export function StickyPriceFooter({
         borderTop: "var(--border-hairline) solid var(--color-border-subtle)",
         paddingTop: "var(--space-4)",
         paddingBottom: "calc(var(--space-4) + env(safe-area-inset-bottom, 0px))",
-        paddingLeft: "var(--space-4)",
-        paddingRight: "var(--space-4)",
+        paddingLeft: "var(--journey-inline-padding)",
+        paddingRight: "var(--journey-inline-padding)",
         boxShadow: "var(--shadow-md)",
+        display: "grid",
+        gridTemplateColumns: "minmax(0, 1fr) auto",
+        alignItems: "end",
+        columnGap: "var(--space-3)",
       }}
     >
-      <div className="flex items-end justify-between gap-3">
-        <div className="min-w-0 flex-1">
-          {inclusiveGst ? (
-            <>
-              <div className="flex flex-wrap items-baseline gap-2">
-                <Typography variant="heading-md" color="primary" weight="bold" as="span">
-                  {amountLabel}
-                </Typography>
-                <Typography variant="caption" color="secondary" as="span">
-                  {gstNote}
-                </Typography>
-              </div>
-              {showPremiumLink && onPremiumBreakup ? (
-                <Button
-                  type="button"
-                  variant="link"
-                  size="sm"
-                  className="!px-0 !justify-start"
-                  onClick={onPremiumBreakup}
-                >
-                  Premium breakup
-                </Button>
-              ) : null}
-            </>
-          ) : (
-            <>
-              <div className="flex flex-wrap items-baseline gap-2">
-                <Typography variant="heading-md" color="primary" weight="bold" as="span">
-                  {amountLabel}
-                </Typography>
-                <Typography variant="body-sm" color="secondary" as="span">
-                  {gstNote}
-                </Typography>
-              </div>
-              {showPremiumLink && onPremiumBreakup ? (
-                <Button
-                  type="button"
-                  variant="link"
-                  size="sm"
-                  className="!px-0 !justify-start"
-                  onClick={onPremiumBreakup}
-                >
-                  Premium breakup
-                </Button>
-              ) : null}
-            </>
-          )}
-        </div>
-        <Button
-          type="button"
-          variant="primary"
-          size="lg"
-          disabled={ctaDisabled}
-          onClick={onCta}
-          style={{ flexShrink: 0 }}
-        >
-          {ctaLabel}
-        </Button>
+      <div className="min-w-0 flex flex-col" style={{ gap: "4px" }}>
+        {inclusiveGst ? (
+          <>
+            <div className="flex flex-wrap items-center gap-2">
+              <Typography
+                variant="heading-lg"
+                color="primary"
+                weight="bold"
+                as="span"
+                style={{ fontSize: "24px", lineHeight: 1.2 }}
+              >
+                {amountLabel}
+              </Typography>
+              <Typography variant="caption" color="secondary" as="span">
+                {gstNote}
+              </Typography>
+            </div>
+            {showPremiumLink && onPremiumBreakup ? (
+              <Button
+                type="button"
+                variant="link"
+                size="sm"
+                className="!px-0 !justify-start !mt-0 !min-h-0 self-start"
+                style={{ height: 20, minHeight: 20 }}
+                onClick={onPremiumBreakup}
+              >
+                Premium breakup
+              </Button>
+            ) : null}
+          </>
+        ) : (
+          <>
+            <div className="flex flex-wrap items-center gap-2">
+              <Typography
+                variant="heading-lg"
+                color="primary"
+                weight="bold"
+                as="span"
+                style={{ fontSize: "24px", lineHeight: 1.2 }}
+              >
+                {amountLabel}
+              </Typography>
+              <Typography variant="body-sm" color="secondary" as="span">
+                {gstNote}
+              </Typography>
+            </div>
+            {showPremiumLink && onPremiumBreakup ? (
+              <Button
+                type="button"
+                variant="link"
+                size="sm"
+                className="!px-0 !justify-start !mt-0 !min-h-0 self-start"
+                style={{ height: 20, minHeight: 20 }}
+                onClick={onPremiumBreakup}
+              >
+                Premium breakup
+              </Button>
+            ) : null}
+          </>
+        )}
       </div>
+      <Button
+        type="button"
+        variant="primary"
+        size="lg"
+        disabled={ctaDisabled}
+        onClick={onCta}
+        style={{
+          flexShrink: 0,
+          paddingLeft: "var(--space-12)",
+          paddingRight: "var(--space-12)",
+        }}
+      >
+        {ctaLabel}
+      </Button>
     </footer>
   );
 }

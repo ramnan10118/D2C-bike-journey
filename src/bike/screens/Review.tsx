@@ -43,9 +43,9 @@ export function Review() {
     <div
       className="min-h-screen"
       style={{
-        paddingLeft: "var(--space-4)",
-        paddingRight: "var(--space-4)",
-        paddingBottom: "calc(var(--space-28) + env(safe-area-inset-bottom, 0px))",
+        paddingLeft: "var(--journey-inline-padding)",
+        paddingRight: "var(--journey-inline-padding)",
+        paddingBottom: "calc(var(--journey-sticky-footer-clearance) + env(safe-area-inset-bottom, 0px))",
         background: "var(--color-card-elevated-bg)",
       }}
     >
@@ -60,7 +60,7 @@ export function Review() {
               value: "bike",
               trigger: (
                 <div className="flex justify-between items-center gap-2 w-full pr-2">
-                  <span className="flex items-center gap-2 min-w-0">
+                  <span className="flex items-start justify-start gap-2 min-w-0">
                     <Bike size={20} style={{ color: "var(--color-text-secondary)" }} />
                     <Typography variant="body-md" color="primary" weight="bold">
                       Bike details
@@ -90,7 +90,7 @@ export function Review() {
               value: "plan",
               trigger: (
                 <div className="flex justify-between items-center gap-2 w-full pr-2">
-                  <span className="flex items-center gap-2 min-w-0">
+                  <span className="flex items-start justify-start gap-2 min-w-0">
                     <Shield size={20} style={{ color: "var(--color-text-secondary)" }} />
                     <Typography variant="body-md" color="primary" weight="bold">
                       Plan details
@@ -123,7 +123,7 @@ export function Review() {
               value: "owner",
               trigger: (
                 <div className="flex justify-between items-center gap-2 w-full pr-2">
-                  <span className="flex items-center gap-2 min-w-0">
+                  <span className="flex items-start justify-start gap-2 min-w-0">
                     <User size={20} style={{ color: "var(--color-text-secondary)" }} />
                     <Typography variant="body-md" color="primary" weight="bold">
                       Bike owner details

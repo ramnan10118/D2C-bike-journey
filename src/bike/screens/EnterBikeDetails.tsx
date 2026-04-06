@@ -12,13 +12,13 @@ export function EnterBikeDetails() {
     <div
       className="flex flex-col min-h-screen"
       style={{
-        paddingLeft: "var(--space-4)",
-        paddingRight: "var(--space-4)",
-        paddingBottom: "calc(var(--space-24) + env(safe-area-inset-bottom, 0px))",
+        paddingLeft: "var(--journey-inline-padding)",
+        paddingRight: "var(--journey-inline-padding)",
+        paddingBottom: "calc(var(--journey-sticky-footer-clearance) + env(safe-area-inset-bottom, 0px))",
         background: "var(--color-card-elevated-bg)",
       }}
     >
-      <MobileHeader title="Enter your bike details" />
+      <MobileHeader title="Enter your bike details" showBack />
 
       <div style={{ marginTop: "var(--space-6)", flex: 1 }}>
         <button
@@ -53,8 +53,8 @@ export function EnterBikeDetails() {
           borderTop: "var(--border-hairline) solid var(--color-border-subtle)",
           paddingTop: "var(--space-4)",
           paddingBottom: "calc(var(--space-4) + env(safe-area-inset-bottom, 0px))",
-          paddingLeft: "var(--space-4)",
-          paddingRight: "var(--space-4)",
+          paddingLeft: "var(--journey-inline-padding)",
+          paddingRight: "var(--journey-inline-padding)",
         }}
       >
         <Button

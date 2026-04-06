@@ -30,9 +30,9 @@ export function MoreDetails() {
     <div
       className="min-h-screen"
       style={{
-        paddingLeft: "var(--space-4)",
-        paddingRight: "var(--space-4)",
-        paddingBottom: "calc(var(--space-28) + env(safe-area-inset-bottom, 0px))",
+        paddingLeft: "var(--journey-inline-padding)",
+        paddingRight: "var(--journey-inline-padding)",
+        paddingBottom: "calc(var(--journey-sticky-footer-clearance) + env(safe-area-inset-bottom, 0px))",
         background: "var(--color-card-elevated-bg)",
       }}
     >
