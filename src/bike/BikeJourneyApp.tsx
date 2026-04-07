@@ -19,6 +19,8 @@ export function BikeJourneyApp() {
       style={{
         maxWidth: "var(--layout-mobile-max-width)",
         background: "var(--color-card-elevated-bg)",
+        paddingTop: "var(--space-4)",
+        paddingBottom: "var(--space-4)",
       }}
     >
       {step === 1 && <EnterBikeDetails />}

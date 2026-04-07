@@ -1,4 +1,4 @@
-import { useId } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { Badge } from "@acko/badge";
 import { Button } from "@acko/button";
 import { Card } from "@acko/card";
@@ -76,9 +76,13 @@ function PlanRadioCard({
       <div className="plan-radio-card-title min-w-0">
         <Typography
           variant="heading-sm"
-          color="primary"
+          color={selected ? "brand" : "primary"}
           weight="bold"
-          style={{ fontSize: "20px", lineHeight: 1.25 }}
+          style={{
+            fontSize: "20px",
+            lineHeight: 1.25,
+            fontWeight: 700,
+          }}
         >
           {title}
         </Typography>
@@ -165,16 +169,27 @@ export function SelectPlan() {
 
   const amt = footerDisplayAmount({ plan, addons });
 
+  /** Increments when user switches between plans (not on first selection) — drives footer bump */
+  const [planBumpTick, setPlanBumpTick] = useState(0);
+  const prevPlanRef = useRef<PlanId | null>(null);
+  useEffect(() => {
+    if (prevPlanRef.current !== null && prevPlanRef.current !== plan) {
+      setPlanBumpTick((n) => n + 1);
+    }
+    prevPlanRef.current = plan;
+  }, [plan]);
+
   return (
-    <div
-      className="min-h-screen"
-      style={{
-        paddingLeft: "var(--journey-inline-padding)",
-        paddingRight: "var(--journey-inline-padding)",
-        paddingBottom: "calc(var(--journey-sticky-footer-clearance) + env(safe-area-inset-bottom, 0px))",
-        background: "var(--color-card-elevated-bg)",
-      }}
-    >
+    <>
+      <div
+        className="min-h-screen"
+        style={{
+          paddingLeft: "var(--journey-inline-padding)",
+          paddingRight: "var(--journey-inline-padding)",
+          paddingBottom: "calc(var(--journey-sticky-footer-clearance) + env(safe-area-inset-bottom, 0px))",
+          background: "var(--color-card-elevated-bg)",
+        }}
+      >
       <MobileHeader
         title="Select plan"
         onBack={goBack}
@@ -208,8 +223,8 @@ export function SelectPlan() {
           style={{
             paddingLeft: "var(--space-5)",
             paddingRight: "var(--space-5)",
-            paddingTop: "var(--space-5)",
-            paddingBottom: "var(--space-5)",
+            paddingTop: "var(--space-4)",
+            paddingBottom: "var(--space-4)",
           }}
         >
           <div className="flex items-start justify-between gap-3">
@@ -345,14 +360,16 @@ export function SelectPlan() {
 
         <InfoBanner />
       </div>
+      </div>
 
       <StickyPriceFooter
+        planBumpTick={planBumpTick}
         amountLabel={formatRupees(amt)}
         gstNote="+ 18% GST"
         onPremiumBreakup={() => setSheet("premium")}
         ctaLabel="Continue"
         onCta={() => goNext()}
       />
-    </div>
+    </>
   );
 }

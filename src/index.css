@@ -40,10 +40,19 @@
   /* 20px — mobile horizontal gutter for all journey screens, sticky footer, bottom sheets */
   --journey-inline-padding: var(--space-5);
   /*
-   * Scrollable page bottom padding above fixed StickyPriceFooter.
+   * Scrollable page bottom padding above fixed StickyPriceFooter (inset liquid-glass bar + float margin).
    * (--space-28 does not exist in @acko/tokens; invalid var collapsed clearance and hid content behind the footer.)
    */
-  --journey-sticky-footer-clearance: calc(var(--space-24) + var(--space-12));
+  --journey-sticky-footer-clearance: calc(var(--space-24) + var(--space-12) + var(--space-3));
+  /* Backdrop blur for StickyPriceFooter liquid-glass material (glass-lab reference) */
+  --journey-liquid-glass-blur: 37px;
+  /* Footer total amount — between heading-lg (24px) and heading-xl (32px) */
+  --journey-sticky-footer-amount-size: 28px;
+  --journey-sticky-footer-amount-line: 32px;
+  --journey-sticky-footer-glass-radius: 36px;
+  /* Inset pill width inside 430px shell — matches content column (430 − 2×20px gutter) */
+  --journey-sticky-footer-glass-width: 390px;
+  --journey-sticky-footer-glass-min-height: 96px;
 }
 
 /* Bottom sheet: overlay fade + panel ease (easing from @acko/tokens) */
@@ -173,11 +182,65 @@
   line-height: 16px;
 }
 
-/* Plan selection cards: 1px idle (match outline Card); 2px selected. No DS focus-within ring (avoids double purple edge). */
+/*
+ * Sticky price footer — liquid glass L1+R1 (inset pill).
+ * Glass-lab style: specular inset edges + dual outer depth + ring; blur via --journey-liquid-glass-blur.
+ */
+.bike-sticky-price-footer-glass {
+  box-sizing: border-box;
+  width: min(var(--journey-sticky-footer-glass-width), calc(100% - 2 * var(--journey-inline-padding)));
+  max-width: var(--journey-sticky-footer-glass-width);
+  min-height: var(--journey-sticky-footer-glass-min-height);
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: var(--space-5);
+  background-color: color-mix(in srgb, var(--color-surface-raised) 35%, transparent);
+  -webkit-backdrop-filter: blur(var(--journey-liquid-glass-blur)) saturate(1.05) brightness(1);
+  backdrop-filter: blur(var(--journey-liquid-glass-blur)) saturate(1.05) brightness(1);
+  border: var(--border-hairline) solid color-mix(in srgb, var(--grey-white) 25%, transparent);
+  border-radius: var(--journey-sticky-footer-glass-radius);
+  box-shadow:
+    inset 0 var(--border-hairline) var(--border-hairline) 0 color-mix(in srgb, var(--grey-white) 50%, transparent),
+    inset 0 calc(-1 * var(--border-hairline)) var(--border-hairline) 0
+      color-mix(in srgb, var(--grey-white) 10%, transparent),
+    0 var(--space-4) var(--space-12) color-mix(in srgb, var(--color-text-primary) 10%, transparent),
+    0 var(--space-1) var(--space-3) color-mix(in srgb, var(--color-text-primary) 10%, transparent),
+    inset 0 0 0 var(--border-hairline) color-mix(in srgb, var(--grey-white) 28%, transparent);
+}
+
+/* Plan change: nudge inner row only — glass keeps backdrop-filter without `transform` on same node */
+@keyframes bike-sticky-footer-plan-bump {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  35% {
+    transform: translateY(calc(-1 * var(--space-2)));
+  }
+  65% {
+    transform: translateY(var(--space-1));
+  }
+}
+
+.bike-sticky-price-footer-glass-inner--plan-bump {
+  animation: bike-sticky-footer-plan-bump 0.38s var(--ease-out-cubic) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bike-sticky-price-footer-glass-inner--plan-bump {
+    animation: none;
+    transform: none;
+  }
+}
+
+/*
+ * Plan selection cards: always 2px border so switching selection does not jump (1px→2px used to shift layout).
+ * Idle: outline border color; selected: primary purple.
+ */
 .plan-radio-card.acko-radio-card-item {
   position: relative;
   box-sizing: border-box;
-  border-width: 1px;
+  border-width: 2px;
   border-style: solid;
   border-color: var(--color-card-outline-border);
   background-color: var(--color-card-elevated-bg);
@@ -185,7 +248,6 @@
   border-radius: var(--radius-4xl);
   transition:
     border-color 150ms ease,
-    border-width 150ms ease,
     background-color 150ms ease;
 }
 
@@ -203,7 +265,7 @@
 @media (hover: hover) and (pointer: fine) {
   .plan-radio-card.acko-radio-card-item:hover:not(.acko-radio-item-disabled):not(.acko-radio-item-selected) {
     background-color: var(--color-card-elevated-bg);
-    border-width: 1px;
+    border-width: 2px;
     border-color: var(--color-primary-muted);
   }
 

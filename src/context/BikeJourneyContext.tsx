@@ -28,6 +28,7 @@ export interface BikeJourneyState {
   sheet: OverlaySheet;
   bikeBrandModel: string;
   registrationYear: number;
+  /** Defaults to comprehensive; user can switch on Select plan (step 3). */
   plan: PlanId;
   idv: number;
   addons: { zeroDep: boolean; pa: boolean; pillion: boolean };

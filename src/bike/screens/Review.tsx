@@ -37,7 +37,8 @@ export function Review() {
   } = useBikeJourney();
 
   const policyStart = formatPolicyDate(new Date());
-  const planLabel = plan === "comprehensive" ? "Bike Bundled Plan" : "Third-party Plan";
+  const planLabel =
+    plan === "comprehensive" ? "Bike Bundled Plan" : "Third-party Plan";
 
   return (
     <div
