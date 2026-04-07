@@ -31,7 +31,14 @@ export interface BikeJourneyState {
   /** Defaults to comprehensive; user can switch on Select plan (step 3). */
   plan: PlanId;
   idv: number;
-  addons: { zeroDep: boolean; pa: boolean; pillion: boolean };
+  addons: {
+    zeroDep: boolean;
+    pa: boolean;
+    pillion: boolean;
+    roadsideAssist: boolean;
+    engineProtect: boolean;
+    consumables: boolean;
+  };
   fullName: string;
   email: string;
   pincode: string;
@@ -45,7 +52,14 @@ const initial: BikeJourneyState = {
   registrationYear: 2026,
   plan: "comprehensive",
   idv: IDV_DEFAULT,
-  addons: { zeroDep: false, pa: false, pillion: false },
+  addons: {
+    zeroDep: false,
+    pa: false,
+    pillion: false,
+    roadsideAssist: false,
+    engineProtect: false,
+    consumables: false,
+  },
   fullName: "",
   email: "",
   pincode: "",
@@ -60,9 +74,12 @@ export function netPremiumBeforeGst(plan: PlanId): number {
 
 export function addonTotal(addons: BikeJourneyState["addons"]): number {
   let t = 0;
-  if (addons.zeroDep) t += 12;
+  if (addons.zeroDep) t += 36;
   if (addons.pa) t += 350;
   if (addons.pillion) t += 100;
+  if (addons.roadsideAssist) t += 150;
+  if (addons.engineProtect) t += 200;
+  if (addons.consumables) t += 75;
   return t;
 }
 
