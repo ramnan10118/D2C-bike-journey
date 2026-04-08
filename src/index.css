@@ -39,6 +39,8 @@
   --motion-duration-sheet: 200ms;
   /* 20px — mobile horizontal gutter for all journey screens, sticky footer, bottom sheets */
   --journey-inline-padding: var(--space-5);
+  /* Space from MobileHeader (below title/subtitle) to the main page content — every journey step */
+  --journey-header-content-gap: var(--space-4);
   /*
    * Scrollable page bottom padding above fixed StickyPriceFooter (inset liquid-glass bar + float margin).
    * (--space-28 does not exist in @acko/tokens; invalid var collapsed clearance and hid content behind the footer.)
@@ -74,13 +76,12 @@
 }
 
 .bike-bottom-sheet-panel {
-  transform: translateY(100%);
   transition: transform var(--motion-duration-sheet) var(--ease-out-cubic);
   will-change: transform;
 }
 
-.bike-bottom-sheet-panel--open {
-  transform: translateY(0);
+.bike-bottom-sheet-panel--dragging {
+  transition: none;
 }
 
 .bike-bottom-sheet-header {
@@ -89,33 +90,208 @@
   background: var(--color-card-elevated-bg);
 }
 
-/* Visible close control (secondary Button can match sheet bg) */
-.bike-bottom-sheet-close {
+/* Grab area: drag down to dismiss (min touch target via padding) */
+.bike-bottom-sheet-grab-area {
+  touch-action: none;
+  cursor: grab;
+  padding-block: var(--space-3);
+  margin-block: calc(-1 * var(--space-3));
+}
+
+.bike-bottom-sheet-grab-area:active {
+  cursor: grabbing;
+}
+
+/* Grab handle — pill; dismiss also via backdrop */
+.bike-bottom-sheet-grab {
+  width: 36px;
+  height: 4px;
+  border-radius: var(--radius-full);
+  background: var(--color-border-subtle);
+  pointer-events: none;
+}
+
+/* Find bike sheet: placeholder-only search (label kept for a11y, visually hidden) */
+.find-bike-search-input .acko-text-input-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.find-bike-search-input {
+  position: relative;
+}
+
+/*
+ * Find-bike search: one ring — strip DS focus box-shadow; constant 2px border (no negative margin,
+ * avoids clipping / misaligned bounds with overflow). Unfocused vs focus = border-color only.
+ */
+.find-bike-search-input .acko-text-input-wrapper {
+  border-width: 2px;
+  border-style: solid;
+  box-shadow: none;
+}
+
+.find-bike-search-input .acko-text-input-wrapper.acko-text-input-focused {
+  border-color: var(--color-input-focus-border);
+  outline: none;
+}
+
+/* Hide any UA search decorations if type is ever search again */
+.find-bike-search-input input::-webkit-search-cancel-button,
+.find-bike-search-input input::-webkit-search-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+  display: none;
+}
+
+/* Lucide clear — neutral; DS makes icon-right primary when focused */
+.find-bike-search-input .find-bike-search-clear {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
-  width: var(--space-10);
-  height: var(--space-10);
   margin: 0;
   padding: 0;
-  border: var(--border-hairline) solid var(--color-border);
-  border-radius: var(--radius-lg);
-  background: var(--color-surface-raised);
-  color: var(--color-text-primary);
+  border: none;
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--color-text-secondary);
   cursor: pointer;
-  transition:
-    background-color var(--motion-duration-sheet) var(--ease-out-cubic),
-    border-color var(--motion-duration-sheet) var(--ease-out-cubic);
+  line-height: 0;
+  transition: color 150ms ease, background-color 150ms ease;
 }
 
-.bike-bottom-sheet-close:hover {
+.find-bike-search-input .find-bike-search-clear:hover {
+  color: var(--color-text-primary);
+}
+
+.find-bike-search-input .find-bike-search-clear:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.find-bike-search-input .acko-text-input-focused .acko-text-input-icon-right {
+  color: var(--color-text-secondary);
+}
+
+/* ─── Journey bottom sheets: shared list & breakup layout ─── */
+
+.bike-sheet-body {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/** Section label above a list (inset; pairs with full-bleed list below). */
+.bike-sheet-section-heading {
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/** Pull list/key rows to sheet horizontal edges; restore text inset on children. */
+.bike-sheet-bleed-x {
+  margin-left: calc(-1 * var(--journey-inline-padding));
+  margin-right: calc(-1 * var(--journey-inline-padding));
+  min-width: 0;
+}
+
+.bike-sheet-list {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 var(--space-2);
+}
+
+.bike-sheet-list-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: var(--space-3);
+  width: 100%;
+  min-height: 48px;
+  padding: var(--space-3) var(--journey-inline-padding);
+  margin: 0;
+  border: none;
+  border-bottom: var(--border-hairline) solid var(--color-border-subtle);
+  border-radius: 0;
+  background: var(--color-card-elevated-bg);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color var(--motion-duration-sheet) var(--ease-out-cubic);
+}
+
+.bike-sheet-list-row:last-child {
+  border-bottom: none;
+}
+
+.bike-sheet-list-row:hover {
+  background: var(--color-surface-raised);
+}
+
+.bike-sheet-list-row:active {
   background: var(--color-surface-raised-hover);
 }
 
-.bike-bottom-sheet-close:focus-visible {
+.bike-sheet-list-row:focus {
+  outline: none;
+}
+
+.bike-sheet-list-row:focus-visible {
   outline: 2px solid var(--color-primary);
-  outline-offset: 2px;
+  outline-offset: -2px;
+  position: relative;
+  z-index: 1;
+}
+
+/** Empty / zero state inside a scroll region */
+.bike-sheet-empty {
+  padding: var(--space-10) var(--journey-inline-padding);
+  text-align: center;
+}
+
+/** Premium breakup & similar key–value stacks (aligned with sheet list spacing) */
+.bike-sheet-breakup {
+  display: flex;
+  flex-direction: column;
+  /* Tight gap so Discount sits close to the net-premium divider */
+  gap: var(--space-1);
+  min-height: 0;
+}
+
+.bike-sheet-kv-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-4);
+  min-height: 48px;
+  padding: var(--space-3) var(--journey-inline-padding);
+  border-bottom: var(--border-hairline) solid var(--color-border-subtle);
+}
+
+.bike-sheet-breakup-bleed .bike-sheet-kv-row:last-child {
+  border-bottom: none;
+  padding-bottom: var(--space-2);
+}
+
+/* Remove divider below a row (e.g. group Own Damage + Discount) */
+.bike-sheet-kv-row--no-divider-below {
+  border-bottom: none;
+}
+
+.bike-sheet-breakup-total {
+  /* Space below the divider line to “Net premium” (not Discount→line) */
+  padding-top: var(--space-4);
+  border-top: var(--border-hairline) solid var(--color-border-subtle);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
 }
 
 /*
@@ -169,17 +345,27 @@
   width: calc(100% + 2 * var(--journey-inline-padding));
 }
 
-/* “learn more” link — match body-md subtitle line in plan header */
-.mobile-header-subtitle .acko-btn-sm .acko-btn-label {
-  font-size: var(--font-body-md-size);
+/* `Learn more` inside header subtitle — blue link, no underline (all journey headers) */
+.mobile-header-learn-more-inline,
+.mobile-header-learn-more-inline:hover,
+.mobile-header-learn-more-inline:visited {
+  color: var(--color-primary);
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+  text-decoration: none;
 }
 
-/* Select plan subtitle: natural wrap; tighter line than default body-md (16px) */
+.mobile-header-learn-more-inline:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
 .mobile-header-plan-subtitle {
   width: 100%;
   max-width: 100%;
   text-wrap: wrap;
-  line-height: 16px;
+  line-height: var(--font-body-md-line);
 }
 
 /*

@@ -193,29 +193,14 @@ export function SelectPlan() {
       <MobileHeader
         title="Select plan"
         onBack={goBack}
-        subtitle={
-          <Typography
-            variant="body-md"
-            color="secondary"
-            weight="medium"
-            as="p"
-            className="mobile-header-plan-subtitle"
-            style={{
-              margin: "var(--space-3) 0 0 0",
-            }}
-          >
-            All plans include 5-year Third-party{"\u00A0"}coverage.{" "}
-            <Button type="button" variant="link" size="sm" className="!inline !p-0 align-baseline">
-              Learn more
-            </Button>
-          </Typography>
-        }
+        subtitle={`All plans include 5-year Third-party\u00A0coverage. Learn more`}
+        onLearnMore={() => {}}
       />
 
-      {/* Gap below header (subtitle): tune marginTop here */}
+      {/* Gap below header: --journey-header-content-gap in index.css */}
       <div
         className="flex flex-col w-full items-stretch"
-        style={{ gap: "var(--space-3)", marginTop: "var(--space-4)" }}
+        style={{ gap: "var(--space-3)", marginTop: "var(--journey-header-content-gap)" }}
       >
         <Card
           variant="outline"

@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Button } from "@acko/button";
+import { useState, type ReactNode } from "react";
+import { Badge } from "@acko/badge";
 import { Checkbox } from "@acko/checkbox";
 import { Typography } from "@acko/typography";
 import { Check } from "lucide-react";
@@ -16,22 +16,35 @@ import { formatRupees } from "../format";
 const ZERO_DEP_TITLE = "Zero Depreciation Cover";
 const ZERO_DEP_PRICE = 36;
 
+const ZERO_DEP_POINTERS = [
+  "Covers the full cost of bike parts if they are replaced during a claim.",
+  "You won't have to pay any depreciation charges on replaced parts.",
+] as const;
+
+function PopularBadge() {
+  return (
+    <Badge variant="solid" color="purple" size="md" textCase="sentence">
+      Popular in your city
+    </Badge>
+  );
+}
+
 type AddonKey = keyof BikeJourneyState["addons"];
 
-const ADDON_CARDS: Array<{
+/** One strip layout for every add-on: optional badge row on top, then checkbox + title (structure 2). */
+const ADDON_DEFINITIONS: Array<{
   key: AddonKey;
   title: string;
   price: number;
   pointers: readonly string[];
+  stripEnd?: ReactNode;
 }> = [
   {
     key: "zeroDep",
     title: ZERO_DEP_TITLE,
     price: ZERO_DEP_PRICE,
-    pointers: [
-      "Covers the full cost of bike parts if they are replaced during a claim.",
-      "You won't have to pay any depreciation charges on replaced parts.",
-    ],
+    pointers: ZERO_DEP_POINTERS,
+    stripEnd: <PopularBadge />,
   },
   {
     key: "pa",
@@ -101,36 +114,65 @@ function AddOnCheckboxCard({
   price,
   selected,
   onToggle,
+  stripEnd,
 }: {
   title: string;
   pointers: readonly string[];
   price: number;
   selected: boolean;
   onToggle: (next: boolean) => void;
+  /** Optional badge row above checkbox + title (structure 2). */
+  stripEnd?: ReactNode;
 }) {
+  const checkboxEl = (
+    <div className="shrink-0" onClick={(e) => e.stopPropagation()}>
+      <Checkbox
+        checked={selected}
+        onChange={onToggle}
+        size="md"
+        aria-label={`${title}, ${formatRupees(price)}`}
+      />
+    </div>
+  );
+
+  const titleEl = (
+    <Typography
+      variant="heading-sm"
+      color={selected ? "brand" : "primary"}
+      weight="bold"
+      className="min-w-0 leading-tight"
+      as="div"
+    >
+      {title}
+    </Typography>
+  );
+
+  const badgeRow = stripEnd ? (
+    <div className="flex w-full min-w-0 justify-start">
+      <div className="max-w-[min(100%,14rem)] min-w-0 shrink-0">{stripEnd}</div>
+    </div>
+  ) : null;
+
+  const stripInner = (
+    <div
+      className="flex min-h-0 w-full min-w-0 flex-1 flex-col"
+      style={{ gap: "var(--space-2)" }}
+    >
+      {badgeRow}
+      <div className="flex w-full min-w-0 items-start" style={{ gap: "var(--space-3)" }}>
+        <div className="flex shrink-0 items-center self-start pt-0.5">{checkboxEl}</div>
+        <div className="min-w-0 flex-1">{titleEl}</div>
+      </div>
+    </div>
+  );
+
   return (
     <div
       className={`addon-select-card addon-select-card--strip ${selected ? "addon-select-card--selected" : ""}`}
       onClick={() => onToggle(!selected)}
     >
-      <div className="addon-strip">
-        <div className="shrink-0" onClick={(e) => e.stopPropagation()}>
-          <Checkbox
-            checked={selected}
-            onChange={onToggle}
-            size="md"
-            aria-label={`${title}, ${formatRupees(price)}`}
-          />
-        </div>
-        <Typography
-          variant="heading-sm"
-          color={selected ? "brand" : "primary"}
-          weight="bold"
-          className="min-w-0 flex-1 leading-tight"
-          as="div"
-        >
-          {title}
-        </Typography>
+      <div className="addon-strip flex w-full min-w-0 items-start">
+        {stripInner}
       </div>
 
       <div className="addon-strip-body">
@@ -178,30 +220,15 @@ export function SelectAddOns() {
       <MobileHeader
         title="Select add-ons"
         onBack={goBack}
-        subtitle={
-          <Typography
-            variant="body-md"
-            color="secondary"
-            weight="medium"
-            as="p"
-            className="mobile-header-plan-subtitle"
-            style={{
-              margin: "var(--space-3) 0 0 0",
-            }}
-          >
-            Add-ons are valid for 1 year.{" "}
-            <Button type="button" variant="link" size="sm" className="!inline !p-0 align-baseline">
-              Learn more
-            </Button>
-          </Typography>
-        }
+        subtitle="Add-ons are valid for 1 year. Learn more"
+        onLearnMore={() => {}}
       />
 
       <div
         className="flex w-full flex-col items-stretch"
-        style={{ gap: "var(--space-3)", marginTop: "var(--space-4)" }}
+        style={{ gap: "var(--space-3)", marginTop: "var(--journey-header-content-gap)" }}
       >
-        {ADDON_CARDS.map((a) => (
+        {ADDON_DEFINITIONS.map((a) => (
           <AddOnCheckboxCard
             key={a.key}
             title={a.title}
@@ -209,6 +236,7 @@ export function SelectAddOns() {
             price={a.price}
             selected={addons[a.key]}
             onToggle={(next) => handleAddonToggle(a.key, next)}
+            stripEnd={a.stripEnd}
           />
         ))}
 

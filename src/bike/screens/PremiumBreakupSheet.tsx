@@ -1,23 +1,28 @@
 import { Button } from "@acko/button";
-import { Separator } from "@acko/separator";
 import { Typography } from "@acko/typography";
+import { clsx } from "clsx";
 import { formatRupees } from "../format";
 
 function Row({
   left,
   right,
   tone = "primary",
+  noDividerBelow = false,
 }: {
   left: string;
   right: string;
   tone?: "primary" | "brand";
+  /** When true, no hairline under this row (e.g. before Discount when grouped with line above). */
+  noDividerBelow?: boolean;
 }) {
   return (
-    <div className="flex justify-between gap-4 items-start">
-      <Typography variant="body-sm" color={tone} className="flex-1">
+    <div
+      className={clsx("bike-sheet-kv-row", noDividerBelow && "bike-sheet-kv-row--no-divider-below")}
+    >
+      <Typography variant="body-md" color={tone} weight="medium" className="min-w-0 flex-1">
         {left}
       </Typography>
-      <Typography variant="body-sm" color={tone} weight="semibold" className="shrink-0">
+      <Typography variant="body-md" color={tone} weight="semibold" className="shrink-0 text-right tabular-nums">
         {right}
       </Typography>
     </div>
@@ -26,24 +31,26 @@ function Row({
 
 export function PremiumBreakupSheetContent() {
   return (
-    <div className="flex flex-col" style={{ gap: "var(--space-4)" }}>
-      <Row left="Third-party Premium (5 years)" right={formatRupees(3851)} />
-      <Separator decorative />
-      <Row left="Own Damage premium (1 year)" right={formatRupees(173)} />
-      <Separator decorative />
-      <Row left="Discount" right={`- ${formatRupees(150)}`} tone="brand" />
-      <Separator decorative />
-      <div className="flex justify-between gap-4 items-baseline">
-        <Typography variant="body-md" color="primary" weight="bold">
-          Net premium
-        </Typography>
-        <Typography variant="body-md" color="primary" weight="bold">
-          {formatRupees(3874)}
-        </Typography>
+    <div className="bike-sheet-body bike-sheet-breakup">
+      <div className="bike-sheet-bleed-x bike-sheet-breakup-bleed flex flex-col">
+        <Row left="Third-party Premium (5 years)" right={formatRupees(3851)} />
+        <Row left="Own Damage premium (1 year)" right={formatRupees(173)} noDividerBelow />
+        <Row left="Discount" right={`- ${formatRupees(150)}`} tone="brand" />
       </div>
-      <Typography variant="caption" color="secondary">
-        (Additional 18% GST will be applicable)
-      </Typography>
+
+      <section className="bike-sheet-breakup-total" aria-label="Net premium summary">
+        <div className="flex justify-between gap-4 items-baseline">
+          <Typography variant="heading-sm" color="primary" weight="bold" as="p" className="min-w-0">
+            Net premium
+          </Typography>
+          <Typography variant="heading-sm" color="primary" weight="bold" className="shrink-0 tabular-nums">
+            {formatRupees(3874)}
+          </Typography>
+        </div>
+        <Typography variant="caption" color="secondary" as="p">
+          (Additional 18% GST will be applicable)
+        </Typography>
+      </section>
     </div>
   );
 }

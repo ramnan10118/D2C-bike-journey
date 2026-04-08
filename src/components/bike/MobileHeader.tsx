@@ -1,27 +1,91 @@
-import { type ReactNode } from "react";
 import { Button } from "@acko/button";
 import { Typography } from "@acko/typography";
 import { ChevronLeft } from "lucide-react";
 
+const LEARN_MORE_PHRASE = "Learn more";
+
 export interface MobileHeaderProps {
   title: string;
-  /** Journey back; omit on the entry screen until you wire navigation manually. */
   onBack?: () => void;
-  /**
-   * Show the back control when `onBack` is not set yet (same chrome as other steps).
-   * Pair with `onBack` later, or pass only `onBack` — no need to keep `showBack`.
-   */
   showBack?: boolean;
-  subtitle?: ReactNode;
+  /**
+   * Optional line under the title (body-md). One string; the substring `Learn more` is rendered as `<a>`.
+   */
+  subtitle?: string;
+  learnMoreHref?: string;
+  onLearnMore?: () => void;
 }
 
-export function MobileHeader({ title, onBack, showBack, subtitle }: MobileHeaderProps) {
+function HeaderSubtitleLine({
+  text,
+  learnMoreHref,
+  onLearnMore,
+}: {
+  text: string;
+  learnMoreHref?: string;
+  onLearnMore?: () => void;
+}) {
+  const i = text.indexOf(LEARN_MORE_PHRASE);
+  if (i === -1) {
+    return (
+      <Typography
+        variant="body-md"
+        color="secondary"
+        weight="medium"
+        as="p"
+        className="mobile-header-plan-subtitle"
+        style={{ margin: 0 }}
+      >
+        {text}
+      </Typography>
+    );
+  }
+
+  const before = text.slice(0, i);
+  const after = text.slice(i + LEARN_MORE_PHRASE.length);
+
+  return (
+    <Typography
+      variant="body-md"
+      color="secondary"
+      weight="medium"
+      as="p"
+      className="mobile-header-plan-subtitle"
+      style={{ margin: 0 }}
+    >
+      {before}
+      <a
+        href={learnMoreHref ?? "#"}
+        className="mobile-header-learn-more-inline"
+        onClick={(e) => {
+          if (onLearnMore) {
+            e.preventDefault();
+            onLearnMore();
+          }
+        }}
+      >
+        {LEARN_MORE_PHRASE}
+      </a>
+      {after}
+    </Typography>
+  );
+}
+
+export function MobileHeader({
+  title,
+  onBack,
+  showBack,
+  subtitle,
+  learnMoreHref,
+  onLearnMore,
+}: MobileHeaderProps) {
   const backUi = Boolean(onBack) || Boolean(showBack);
   const backEnabled = Boolean(onBack);
+  const trimmedSubtitle = subtitle?.trim();
+  const hasSubtitle = Boolean(trimmedSubtitle);
 
   return (
     <header>
-      {/* Top nav + divider under nav (above title), per reference layout. */}
       <div style={{ paddingTop: "var(--space-4)" }}>
         <div className="flex items-center" style={{ minHeight: "var(--space-10)" }}>
           {backUi ? (
@@ -52,23 +116,39 @@ export function MobileHeader({ title, onBack, showBack, subtitle }: MobileHeader
         />
       </div>
 
-      <Typography
-        variant="heading-lg"
-        color="primary"
-        weight="bold"
-        as="h1"
-        style={{ marginTop: "var(--space-4)" }}
-      >
-        {title}
-      </Typography>
-      {subtitle ? (
-        <div
-          className="mobile-header-subtitle w-full min-w-0"
-          style={{ marginTop: "calc(-3 * var(--scale-1))" }}
-        >
-          {subtitle}
-        </div>
-      ) : null}
+      <div style={{ marginTop: "var(--space-4)" }}>
+        {hasSubtitle ? (
+          <div className="flex w-full min-w-0 flex-col" style={{ gap: "8px" }}>
+            <Typography
+              variant="heading-lg"
+              color="primary"
+              weight="bold"
+              as="h1"
+              className="min-w-0 shrink-0"
+              style={{ margin: 0 }}
+            >
+              {title}
+            </Typography>
+            <div className="mobile-header-subtitle w-full min-w-0 shrink-0">
+              <HeaderSubtitleLine
+                text={trimmedSubtitle!}
+                learnMoreHref={learnMoreHref}
+                onLearnMore={onLearnMore}
+              />
+            </div>
+          </div>
+        ) : (
+          <Typography
+            variant="heading-lg"
+            color="primary"
+            weight="bold"
+            as="h1"
+            style={{ margin: 0 }}
+          >
+            {title}
+          </Typography>
+        )}
+      </div>
     </header>
   );
 }

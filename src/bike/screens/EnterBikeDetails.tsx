@@ -1,12 +1,13 @@
+import { useId } from "react";
 import { Button } from "@acko/button";
-import { Card } from "@acko/card";
 import { Typography } from "@acko/typography";
-import { ChevronDown } from "lucide-react";
 import { MobileHeader } from "../../components/bike/MobileHeader";
 import { useBikeJourney } from "../../context/BikeJourneyContext";
 
 export function EnterBikeDetails() {
-  const { bikeBrandModel, setSheet, goNext } = useBikeJourney();
+  const { bikeBrandModel, setSheet, goNext, sheet } = useBikeJourney();
+  const labelId = useId();
+  const isFindBikeOpen = sheet === "findBike";
 
   return (
     <div
@@ -20,28 +21,54 @@ export function EnterBikeDetails() {
     >
       <MobileHeader title="Enter your bike details" showBack />
 
-      <div style={{ marginTop: "var(--space-6)", flex: 1 }}>
-        <button
-          type="button"
-          className="w-full text-left border-0 bg-transparent p-0 cursor-pointer"
-          onClick={() => setSheet("findBike")}
-        >
-          <Card variant="outline" padding="md" className="w-full">
-            <div className="flex items-center justify-between gap-3">
-              <Typography
-                variant="body-md"
-                color={bikeBrandModel ? "primary" : "secondary"}
+      <div style={{ marginTop: "var(--journey-header-content-gap)", flex: 1 }}>
+        {/* Same shell as @acko/dropdown trigger — tap opens bottom sheet instead of popover menu */}
+        <div className="acko-dropdown w-full">
+          <span id={labelId} className="sr-only">
+            Brand and model
+          </span>
+          <button
+            type="button"
+            className={[
+              "acko-dropdown-trigger acko-dropdown-trigger-md",
+              isFindBikeOpen ? "acko-dropdown-trigger-open" : "",
+              bikeBrandModel ? "acko-dropdown-trigger-filled" : "",
+            ]
+              .filter(Boolean)
+              .join(" ")}
+            aria-labelledby={labelId}
+            aria-haspopup="dialog"
+            aria-expanded={isFindBikeOpen}
+            onClick={() => setSheet("findBike")}
+          >
+            <span
+              className={
+                bikeBrandModel ? "acko-dropdown-value" : "acko-dropdown-value acko-dropdown-placeholder"
+              }
+            >
+              {bikeBrandModel || "Select brand & model"}
+            </span>
+            <span
+              className={["acko-dropdown-chevron", isFindBikeOpen ? "acko-dropdown-chevron-open" : ""]
+                .filter(Boolean)
+                .join(" ")}
+              aria-hidden
+            >
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
               >
-                {bikeBrandModel || "Select brand & model"}
-              </Typography>
-              <ChevronDown
-                size={20}
-                style={{ color: "var(--color-text-secondary)", flexShrink: 0 }}
-                aria-hidden
-              />
-            </div>
-          </Card>
-        </button>
+                <path d="M6 9l6 6 6-6" />
+              </svg>
+            </span>
+          </button>
+        </div>
       </div>
 
       <footer

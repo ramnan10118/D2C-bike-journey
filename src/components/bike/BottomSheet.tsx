@@ -1,9 +1,19 @@
-import { type ReactNode, useEffect, useId, useState } from "react";
+import {
+  type PointerEvent as ReactPointerEvent,
+  type ReactNode,
+  useEffect,
+  useId,
+  useRef,
+  useState,
+} from "react";
 import { Typography } from "@acko/typography";
-import { X } from "lucide-react";
 
 /** Keep in sync with `--motion-duration-sheet` in `index.css`. */
 const SHEET_EXIT_MS = 200;
+
+function dismissThresholdPx(): number {
+  return Math.min(120, typeof window !== "undefined" ? window.innerHeight * 0.15 : 120);
+}
 
 export interface BottomSheetProps {
   title: string;
@@ -18,16 +28,30 @@ export function BottomSheet({ title, open, onClose, children, footer }: BottomSh
   /** Stays true during exit animation after `open` becomes false. */
   const [mounted, setMounted] = useState(false);
   const [openUI, setOpenUI] = useState(false);
+  const [dragY, setDragY] = useState(0);
+  const [dragging, setDragging] = useState(false);
+
+  const dragYLatest = useRef(0);
+  const dragStartY = useRef(0);
+  const dragStartOffset = useRef(0);
+  /** Sync for pointer handlers — state `dragging` updates after the first move frame. */
+  const dragActiveRef = useRef(false);
+
+  dragYLatest.current = dragY;
 
   useEffect(() => {
     if (open) {
       setMounted(true);
       setOpenUI(false);
+      setDragY(0);
+      dragActiveRef.current = false;
       const id = requestAnimationFrame(() => {
         requestAnimationFrame(() => setOpenUI(true));
       });
       return () => cancelAnimationFrame(id);
     }
+    dragActiveRef.current = false;
+    setDragging(false);
     setOpenUI(false);
     const t = window.setTimeout(() => setMounted(false), SHEET_EXIT_MS);
     return () => window.clearTimeout(t);
@@ -35,6 +59,50 @@ export function BottomSheet({ title, open, onClose, children, footer }: BottomSh
 
   /* Render when open (first paint) OR while exit animation runs — avoids skipping enter when mounted was false */
   if (!open && !mounted) return null;
+
+  const panelTransform = openUI ? `translateY(${dragY}px)` : "translateY(100%)";
+
+  const onGrabPointerDown = (e: ReactPointerEvent<HTMLDivElement>) => {
+    if (!openUI || e.button !== 0) return;
+    e.currentTarget.setPointerCapture(e.pointerId);
+    dragActiveRef.current = true;
+    setDragging(true);
+    dragStartY.current = e.clientY;
+    dragStartOffset.current = dragYLatest.current;
+  };
+
+  const onGrabPointerMove = (e: ReactPointerEvent<HTMLDivElement>) => {
+    if (!dragActiveRef.current) return;
+    const delta = e.clientY - dragStartY.current;
+    const next = Math.max(0, dragStartOffset.current + delta);
+    dragYLatest.current = next;
+    setDragY(next);
+  };
+
+  const endDrag = (e: ReactPointerEvent<HTMLDivElement>) => {
+    if (!dragActiveRef.current) return;
+    dragActiveRef.current = false;
+    try {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    } catch {
+      /* already released */
+    }
+    setDragging(false);
+    const y = dragYLatest.current;
+    if (y >= dismissThresholdPx()) {
+      onClose();
+    } else {
+      setDragY(0);
+    }
+  };
+
+  const onGrabPointerUp = (e: ReactPointerEvent<HTMLDivElement>) => {
+    endDrag(e);
+  };
+
+  const onGrabPointerCancel = (e: ReactPointerEvent<HTMLDivElement>) => {
+    endDrag(e);
+  };
 
   return (
     <div
@@ -51,22 +119,33 @@ export function BottomSheet({ title, open, onClose, children, footer }: BottomSh
         onClick={onClose}
       />
       <div
-        className={`relative w-full mx-auto flex flex-col overflow-hidden bike-bottom-sheet-panel max-h-[90dvh] ${openUI ? "bike-bottom-sheet-panel--open" : ""}`}
+        className={`relative w-full mx-auto flex flex-col overflow-hidden bike-bottom-sheet-panel max-h-[90dvh] ${dragging ? "bike-bottom-sheet-panel--dragging" : ""}`}
         style={{
           maxWidth: "var(--layout-mobile-max-width)",
           background: "var(--color-card-elevated-bg)",
           borderTopLeftRadius: "var(--radius-3xl)",
           borderTopRightRadius: "var(--radius-3xl)",
-          paddingTop: "var(--space-5)",
+          paddingTop: "var(--space-3)",
           paddingLeft: "var(--journey-inline-padding)",
           paddingRight: "var(--journey-inline-padding)",
           paddingBottom: footer ? 0 : "var(--space-5)",
           boxShadow: "var(--shadow-lg)",
           zIndex: 1,
+          transform: panelTransform,
         }}
       >
         <div
-          className="bike-bottom-sheet-header flex items-start justify-between gap-3 shrink-0"
+          className="bike-bottom-sheet-grab-area flex w-full shrink-0 justify-center"
+          style={{ marginBottom: "var(--space-4)" }}
+          onPointerDown={onGrabPointerDown}
+          onPointerMove={onGrabPointerMove}
+          onPointerUp={onGrabPointerUp}
+          onPointerCancel={onGrabPointerCancel}
+        >
+          <div className="bike-bottom-sheet-grab" aria-hidden />
+        </div>
+        <div
+          className="bike-bottom-sheet-header shrink-0"
           style={{ marginBottom: "var(--space-4)" }}
         >
           <Typography
@@ -75,24 +154,17 @@ export function BottomSheet({ title, open, onClose, children, footer }: BottomSh
             color="primary"
             weight="bold"
             as="h2"
-            className="min-w-0 flex-1 pr-2"
+            className="min-w-0 w-full"
           >
             {title}
           </Typography>
-          <button
-            type="button"
-            className="bike-bottom-sheet-close"
-            aria-label="Close"
-            onClick={onClose}
-          >
-            <X size={22} strokeWidth={2} aria-hidden />
-          </button>
         </div>
-        <div className="flex-1 min-h-0 overflow-y-auto">{children}</div>
+        <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">{children}</div>
         {footer ? (
           <div
+            className="bike-bottom-sheet-footer"
             style={{
-              paddingTop: "var(--space-4)",
+              paddingTop: "40px",
               paddingBottom: "var(--space-5)",
             }}
           >

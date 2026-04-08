@@ -52,7 +52,7 @@ export function Review() {
     >
       <MobileHeader title="Review your details" onBack={goBack} />
 
-      <div style={{ marginTop: "var(--space-4)" }}>
+      <div style={{ marginTop: "var(--journey-header-content-gap)" }}>
         <Accordion
           type="multiple"
           defaultValue={["bike", "plan", "owner"]}

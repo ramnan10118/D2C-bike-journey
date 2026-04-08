@@ -22,7 +22,7 @@ export function Pay() {
     >
       <MobileHeader title="Pay" onBack={goBack} />
 
-      <div style={{ marginTop: "var(--space-6)" }}>
+      <div style={{ marginTop: "var(--journey-header-content-gap)" }}>
         <Typography variant="body-md" color="primary">
           You&apos;re all set. Complete payment to issue your policy.
         </Typography>

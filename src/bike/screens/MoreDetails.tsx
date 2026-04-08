@@ -1,6 +1,5 @@
 import { Field } from "@acko/field";
 import { TextInput } from "@acko/text-input";
-import { InfoBanner } from "../../components/bike/InfoBanner";
 import { MobileHeader } from "../../components/bike/MobileHeader";
 import { StickyPriceFooter } from "../../components/bike/StickyPriceFooter";
 import { footerDisplayAmount, useBikeJourney } from "../../context/BikeJourneyContext";
@@ -38,14 +37,16 @@ export function MoreDetails() {
     >
       <MobileHeader title="Just a few more details" onBack={goBack} />
 
-      <div className="flex flex-col" style={{ gap: "var(--space-4)", marginTop: "var(--space-4)" }}>
+      <div
+        className="flex flex-col"
+        style={{ gap: "var(--space-4)", marginTop: "var(--journey-header-content-gap)" }}
+      >
         <Field>
           <TextInput
             label="Full Name"
             placeholder="Full Name"
             value={fullName}
             onChange={setFullName}
-            helperText="Enter vehicle owner's name"
           />
         </Field>
         <Field>
@@ -62,9 +63,8 @@ export function MoreDetails() {
             label="Pincode"
             placeholder="Pincode"
             value={pincode}
-            onChange={setPincode}
-            type="number"
-            maxLength={6}
+            onChange={(v) => setPincode(v.replace(/\D/g, "").slice(0, 6))}
+            type="text"
           />
         </Field>
         <Field>
@@ -75,8 +75,6 @@ export function MoreDetails() {
             onChange={setGst}
           />
         </Field>
-
-        <InfoBanner />
       </div>
 
       <StickyPriceFooter
