@@ -199,32 +199,65 @@
   margin-left: calc(-1 * var(--journey-inline-padding));
   margin-right: calc(-1 * var(--journey-inline-padding));
   min-width: 0;
+  width: calc(100% + 2 * var(--journey-inline-padding));
+  max-width: none;
+  box-sizing: border-box;
+}
+
+/* ScrollArea must fill the bleed track so list rows span full width (hover fills edge-to-edge). */
+.bike-sheet-list-wrap .acko-scroll-area {
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .bike-sheet-list {
   list-style: none;
   margin: 0;
   padding: 0 0 var(--space-2);
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-.bike-sheet-list-row {
+.bike-sheet-list > li {
   display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  gap: var(--space-3);
+  flex-direction: column;
   width: 100%;
-  min-height: 48px;
-  padding: var(--space-3) var(--journey-inline-padding);
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+/*
+ * Row button: no horizontal padding on the button itself so hover/active background
+ * paints edge-to-edge; inset lives on .bike-sheet-list-row-inner.
+ */
+.bike-sheet-list-row {
+  display: block;
+  width: 100%;
   margin: 0;
+  padding: 0;
   border: none;
   border-bottom: var(--border-hairline) solid var(--color-border-subtle);
   border-radius: 0;
   background: var(--color-card-elevated-bg);
   color: inherit;
   font: inherit;
-  text-align: left;
   cursor: pointer;
+  box-sizing: border-box;
   transition: background-color var(--motion-duration-sheet) var(--ease-out-cubic);
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.bike-sheet-list-row-inner {
+  display: flex;
+  align-items: center;
+  min-height: 48px;
+  padding: var(--space-3) var(--journey-inline-padding);
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .bike-sheet-list-row:last-child {
@@ -294,12 +327,89 @@
   gap: var(--space-2);
 }
 
+/* Dotted 1px hairlines everywhere in this sheet; solid 1px only above Total */
+.premium-breakup-details .bike-sheet-kv-row {
+  border-bottom: 1px dotted var(--grey-200);
+}
+
+.premium-breakup-details .bike-sheet-kv-row--no-divider-below {
+  border-bottom: none;
+}
+
+.premium-breakup-addon-heading {
+  padding: var(--space-3) var(--journey-inline-padding) var(--space-2);
+}
+
+/* One dotted line under the whole add-on block — not under each row */
+.premium-breakup-addon-list {
+  display: flex;
+  flex-direction: column;
+  border-bottom: 1px dotted var(--grey-200);
+}
+
+.premium-breakup-addon-list .bike-sheet-kv-row {
+  border-bottom: none;
+}
+
+/*
+ * When the upper bleed block ends with a normal kv row (no add-ons), restore the dotted line.
+ * Overrides the generic breakup-bleed rule that removed the last kv border.
+ */
+.premium-breakup-details .bike-sheet-breakup-bleed > .bike-sheet-kv-row:last-child {
+  border-bottom: 1px dotted var(--grey-200);
+}
+
+.premium-breakup-net-gst {
+  padding-top: 0;
+}
+
+/* No line between Net premium and 18% GST (Net row uses noDividerBelow) */
+
+/* Single rule before Total: drop GST row bottom border so it doesn’t stack with Total’s top border */
+.premium-breakup-net-gst .bike-sheet-kv-row:last-child {
+  border-bottom: none;
+  padding-bottom: var(--space-2);
+}
+
+.premium-breakup-grand-total {
+  margin-top: 0;
+  padding: var(--space-4) var(--journey-inline-padding) 0;
+  border-top: 1px solid var(--grey-200);
+  box-sizing: border-box;
+}
+
+.premium-breakup-grand-total.bike-sheet-bleed-x {
+  padding-left: var(--journey-inline-padding);
+  padding-right: var(--journey-inline-padding);
+}
+
 /*
  * Mobile header back: @acko/button iconOnly hides children in .sr-only — the visible
  * glyph must use iconLeft / iconRight (see Button.tsx).
+ * Mobile-first: no hover/active background pill; DS ghost adds surface on hover.
  */
 .mobile-header-back {
   color: var(--color-text-primary);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mobile-header-back.acko-btn,
+.mobile-header-back.acko-btn:hover,
+.mobile-header-back.acko-btn:active,
+.mobile-header-back.acko-btn:focus {
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+.mobile-header-back.acko-btn:focus-visible {
+  background: transparent !important;
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.mobile-header-back.acko-btn:focus:not(:focus-visible) {
+  outline: none;
 }
 
 /*
@@ -463,7 +573,7 @@
   gap: var(--space-3);
   padding: var(--space-4) var(--space-5);
   background: color-mix(in srgb, var(--color-card-demoted-bg) 22%, var(--grey-white));
-  border-bottom: var(--border-hairline) solid var(--color-border-subtle);
+  border-bottom: var(--border-hairline) solid var(--grey-200);
 }
 
 .addon-strip-body {
@@ -480,7 +590,7 @@
 .addon-pointer-list {
   list-style: none;
   margin: 0;
-  padding: 0 0 calc(var(--space-2) + 8px) 0;
+  padding: 0 0 calc(var(--space-2) + var(--space-2)) 0;
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
@@ -490,7 +600,7 @@
 .addon-strip-price-row {
   position: relative;
   margin-top: 0;
-  padding-top: calc(var(--space-2) + 8px);
+  padding-top: calc(var(--space-2) + var(--space-2));
   border-top: none;
 }
 
@@ -505,8 +615,8 @@
   /* Shorter period = more dots across the width (2px mark + 3px gap, repeats every 5px) */
   background: repeating-linear-gradient(
     to right,
-    var(--color-border-subtle) 0,
-    var(--color-border-subtle) 2px,
+    var(--grey-200) 0,
+    var(--grey-200) 2px,
     transparent 2px,
     transparent 5px
   );
@@ -523,7 +633,7 @@
   border-style: solid;
   border-color: var(--color-card-outline-border);
   background-color: var(--color-card-elevated-bg);
-  padding: 20px;
+  padding: var(--space-5);
   border-radius: var(--radius-4xl);
   transition:
     border-color 150ms ease,
@@ -674,6 +784,93 @@
   /* Title row → pointers: grid row-gap + this padding */
   padding-top: calc(var(--space-2) + var(--space-1));
   gap: 0;
+}
+
+.review-accordion.acko-accordion {
+  gap: var(--space-3);
+}
+
+.review-accordion .acko-accordion-item {
+  margin: 0;
+  box-sizing: border-box;
+  border-width: 2px;
+  border-style: solid;
+  border-color: var(--color-card-outline-border);
+  border-radius: var(--radius-4xl);
+  overflow: hidden;
+  background: var(--grey-white);
+}
+
+.review-accordion .acko-accordion-item:last-child {
+  border-bottom-width: 2px;
+  border-bottom-style: solid;
+  border-bottom-color: var(--color-card-outline-border);
+}
+
+.review-accordion .acko-accordion-trigger {
+  align-items: flex-start;
+  padding: var(--space-5) var(--journey-inline-padding);
+  gap: var(--space-2);
+  min-height: 3.25rem;
+  font-size: var(--font-body-lg-size);
+  line-height: 1.35;
+  color: var(--color-text-primary);
+  background: color-mix(in srgb, var(--color-card-demoted-bg) 22%, var(--grey-white));
+  border-bottom: var(--border-hairline) solid var(--grey-200);
+}
+
+.review-accordion .acko-accordion-item:has(> .acko-accordion-trigger[aria-expanded="false"]) .acko-accordion-trigger {
+  border-bottom: none;
+}
+
+.review-accordion .acko-accordion-trigger:hover {
+  color: var(--color-text-primary);
+  background: color-mix(in srgb, var(--color-card-demoted-bg) 28%, var(--grey-white));
+}
+
+.review-accordion .acko-accordion-trigger[aria-expanded="true"] {
+  align-items: center;
+}
+
+.review-accordion .acko-accordion-trigger[aria-expanded="true"] .review-accordion-trigger-main {
+  align-items: center;
+}
+
+.review-accordion .acko-accordion-trigger[aria-expanded="true"] .review-accordion-trigger-icon {
+  margin-top: 0;
+}
+
+.review-accordion .acko-accordion-trigger[aria-expanded="true"] .review-accordion-summary {
+  display: none;
+}
+
+.review-accordion .acko-accordion-chevron {
+  width: 22px;
+  height: 22px;
+}
+
+.review-accordion .acko-accordion-chevron svg {
+  width: 22px;
+  height: 22px;
+}
+
+.review-accordion .acko-accordion-item:has(> .acko-accordion-trigger[aria-expanded="true"]) .acko-accordion-content {
+  padding: var(--space-4) var(--journey-inline-padding) var(--space-5);
+}
+
+.review-accordion .acko-accordion-content-wrapper {
+  background: var(--grey-white);
+}
+
+.review-accordion-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.review-accordion-edit {
+  margin: 0;
+  padding: 0;
 }
 
 .content-container {

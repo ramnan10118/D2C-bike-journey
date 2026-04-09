@@ -66,10 +66,15 @@ const initial: BikeJourneyState = {
   gst: "",
 };
 
-/** Net premium before GST (matches premium breakup net line). */
+export const THIRD_PARTY_PREMIUM = 3851;
+export const OWN_DAMAGE_PREMIUM = 173;
+export const PLAN_COUPON_AMOUNT = 150;
+
 export function netPremiumBeforeGst(plan: PlanId): number {
-  if (plan === "comprehensive") return 3874;
-  return 3851;
+  if (plan === "comprehensive") {
+    return THIRD_PARTY_PREMIUM + OWN_DAMAGE_PREMIUM - PLAN_COUPON_AMOUNT;
+  }
+  return THIRD_PARTY_PREMIUM;
 }
 
 export function addonTotal(addons: BikeJourneyState["addons"]): number {
@@ -83,13 +88,17 @@ export function addonTotal(addons: BikeJourneyState["addons"]): number {
   return t;
 }
 
-/** Display total for footers (net + addons; coupon baked into plan net on comprehensive). */
 export function footerDisplayAmount(state: Pick<BikeJourneyState, "plan" | "addons">): number {
   return netPremiumBeforeGst(state.plan) + addonTotal(state.addons);
 }
 
-/** Review / pay: incl. GST (demo fixed to match design). */
-export const TOTAL_INCL_GST = 4571;
+export function gstAmount(state: Pick<BikeJourneyState, "plan" | "addons">): number {
+  return Math.round(footerDisplayAmount(state) * 0.18);
+}
+
+export function totalInclGst(state: Pick<BikeJourneyState, "plan" | "addons">): number {
+  return footerDisplayAmount(state) + gstAmount(state);
+}
 
 interface BikeJourneyContextValue extends BikeJourneyState {
   setSheet: (sheet: OverlaySheet) => void;

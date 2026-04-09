@@ -41,6 +41,7 @@ export function BottomSheet({ title, open, onClose, children, footer }: BottomSh
 
   useEffect(() => {
     if (open) {
+      document.body.style.overflow = "hidden";
       setMounted(true);
       setOpenUI(false);
       setDragY(0);
@@ -48,8 +49,12 @@ export function BottomSheet({ title, open, onClose, children, footer }: BottomSh
       const id = requestAnimationFrame(() => {
         requestAnimationFrame(() => setOpenUI(true));
       });
-      return () => cancelAnimationFrame(id);
+      return () => {
+        cancelAnimationFrame(id);
+        document.body.style.overflow = "";
+      };
     }
+    document.body.style.overflow = "";
     dragActiveRef.current = false;
     setDragging(false);
     setOpenUI(false);
@@ -119,7 +124,7 @@ export function BottomSheet({ title, open, onClose, children, footer }: BottomSh
         onClick={onClose}
       />
       <div
-        className={`relative w-full mx-auto flex flex-col overflow-hidden bike-bottom-sheet-panel max-h-[90dvh] ${dragging ? "bike-bottom-sheet-panel--dragging" : ""}`}
+        className={`relative w-full mx-auto flex flex-col overflow-hidden bike-bottom-sheet-panel max-h-[70dvh] ${dragging ? "bike-bottom-sheet-panel--dragging" : ""}`}
         style={{
           maxWidth: "var(--layout-mobile-max-width)",
           background: "var(--color-card-elevated-bg)",
@@ -159,12 +164,12 @@ export function BottomSheet({ title, open, onClose, children, footer }: BottomSh
             {title}
           </Typography>
         </div>
-        <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">{children}</div>
+        <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden">{children}</div>
         {footer ? (
           <div
-            className="bike-bottom-sheet-footer"
+            className="bike-bottom-sheet-footer shrink-0"
             style={{
-              paddingTop: "40px",
+              paddingTop: "var(--space-10)",
               paddingBottom: "var(--space-5)",
             }}
           >

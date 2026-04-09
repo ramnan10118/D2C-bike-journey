@@ -2,13 +2,13 @@ import { Typography } from "@acko/typography";
 import { MobileHeader } from "../../components/bike/MobileHeader";
 import { StickyPriceFooter } from "../../components/bike/StickyPriceFooter";
 import {
-  TOTAL_INCL_GST,
+  totalInclGst,
   useBikeJourney,
 } from "../../context/BikeJourneyContext";
 import { formatRupees } from "../format";
 
 export function Pay() {
-  const { setSheet, goBack } = useBikeJourney();
+  const { setSheet, goBack, plan, addons } = useBikeJourney();
 
   return (
     <div
@@ -29,7 +29,7 @@ export function Pay() {
       </div>
 
       <StickyPriceFooter
-        amountLabel={formatRupees(TOTAL_INCL_GST)}
+        amountLabel={formatRupees(totalInclGst({ plan, addons }))}
         gstNote="(Incl. GST)"
         inclusiveGst
         onPremiumBreakup={() => setSheet("premium")}

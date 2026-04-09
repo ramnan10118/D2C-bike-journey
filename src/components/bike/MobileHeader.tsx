@@ -118,7 +118,7 @@ export function MobileHeader({
 
       <div style={{ marginTop: "var(--space-4)" }}>
         {hasSubtitle ? (
-          <div className="flex w-full min-w-0 flex-col" style={{ gap: "8px" }}>
+          <div className="flex w-full min-w-0 flex-col" style={{ gap: "var(--space-2)" }}>
             <Typography
               variant="heading-lg"
               color="primary"

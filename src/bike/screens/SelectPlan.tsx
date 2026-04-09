@@ -79,8 +79,8 @@ function PlanRadioCard({
           color={selected ? "brand" : "primary"}
           weight="bold"
           style={{
-            fontSize: "20px",
-            lineHeight: 1.25,
+            fontSize: "var(--font-heading-sm-size)",
+            lineHeight: "var(--font-heading-sm-line)",
             fontWeight: 700,
           }}
         >

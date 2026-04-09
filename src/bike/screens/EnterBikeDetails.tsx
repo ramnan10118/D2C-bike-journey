@@ -94,17 +94,14 @@ export function EnterBikeDetails() {
         >
           View plans
         </Button>
-        <Typography
-          variant="caption"
-          color="secondary"
-          align="center"
-          style={{ marginTop: "var(--space-3)" }}
-        >
-          By proceeding, you agree to{" "}
-          <Button type="button" variant="link" size="xs" className="!inline !p-0">
+        <div className="w-full" style={{ marginTop: "var(--space-3)", textAlign: "center" }}>
+          <Typography variant="caption" color="secondary" as="span">
+            By proceeding, you agree to{" "}
+          </Typography>
+          <Button type="button" variant="link" size="xs" className="!inline !p-0 align-baseline">
             Terms & Conditions
           </Button>
-        </Typography>
+        </div>
       </footer>
     </div>
   );

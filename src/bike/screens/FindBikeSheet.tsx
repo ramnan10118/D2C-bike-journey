@@ -95,9 +95,11 @@ export function FindBikeSheetContent() {
                         setSheet(null);
                       }}
                     >
-                      <Typography variant="body-md" color="primary" weight="medium" className="min-w-0 text-left">
-                        {name}
-                      </Typography>
+                      <span className="bike-sheet-list-row-inner">
+                        <Typography variant="body-md" color="primary" weight="medium" className="min-w-0 text-left">
+                          {name}
+                        </Typography>
+                      </span>
                     </button>
                   </li>
                 ))}

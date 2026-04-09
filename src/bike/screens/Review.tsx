@@ -1,14 +1,13 @@
+import { useMemo } from "react";
 import { Accordion } from "@acko/accordion";
+import type { AccordionItem } from "@acko/accordion";
 import { Button } from "@acko/button";
 import { Typography } from "@acko/typography";
-import { Bike, Shield, User } from "lucide-react";
-import { InfoBanner } from "../../components/bike/InfoBanner";
+import { Bike, IndianRupee, Shield, User } from "lucide-react";
+import { PremiumBreakupDetails } from "../../components/bike/PremiumBreakupDetails";
 import { MobileHeader } from "../../components/bike/MobileHeader";
 import { StickyPriceFooter } from "../../components/bike/StickyPriceFooter";
-import {
-  TOTAL_INCL_GST,
-  useBikeJourney,
-} from "../../context/BikeJourneyContext";
+import { totalInclGst, useBikeJourney } from "../../context/BikeJourneyContext";
 import { formatPolicyDate, formatRupees } from "../format";
 
 function Kv({ label, value }: { label: string; value: string }) {
@@ -30,6 +29,7 @@ export function Review() {
     idv,
     fullName,
     email,
+    addons,
     setStep,
     setSheet,
     goNext,
@@ -39,6 +39,166 @@ export function Review() {
   const policyStart = formatPolicyDate(new Date());
   const planLabel =
     plan === "comprehensive" ? "Bike Bundled Plan" : "Third-party Plan";
+
+  const accordionItems = useMemo((): AccordionItem[] => {
+    return [
+      {
+        value: "bike",
+        trigger: (
+          <div className="review-accordion-trigger-main flex min-w-0 flex-1 items-start gap-2">
+            <Bike
+              size={20}
+              className="review-accordion-trigger-icon shrink-0"
+              style={{ color: "var(--color-text-secondary)" }}
+            />
+            <div className="min-w-0 flex-1">
+              <Typography variant="body-md" color="primary" weight="bold">
+                Bike details
+              </Typography>
+              <Typography
+                variant="caption"
+                color="secondary"
+                className="review-accordion-summary mt-0.5 block"
+              >
+                {bikeBrandModel}
+              </Typography>
+            </div>
+          </div>
+        ),
+        content: (
+          <div className="review-accordion-panel">
+            <div className="flex flex-col" style={{ gap: "var(--space-3)" }}>
+              <Kv label="Brand & model" value={bikeBrandModel} />
+              <Kv label="Registration year" value={String(registrationYear)} />
+            </div>
+            <div className="review-accordion-edit">
+              <Button type="button" variant="link" size="sm" onClick={() => setStep(1)}>
+                Edit details
+              </Button>
+            </div>
+          </div>
+        ),
+      },
+      {
+        value: "owner",
+        trigger: (
+          <div className="review-accordion-trigger-main flex min-w-0 flex-1 items-start gap-2">
+            <User
+              size={20}
+              className="review-accordion-trigger-icon shrink-0"
+              style={{ color: "var(--color-text-secondary)" }}
+            />
+            <div className="min-w-0 flex-1">
+              <Typography variant="body-md" color="primary" weight="bold">
+                Bike owner details
+              </Typography>
+              <Typography
+                variant="caption"
+                color="secondary"
+                className="review-accordion-summary mt-0.5 block"
+              >
+                {fullName}
+              </Typography>
+            </div>
+          </div>
+        ),
+        content: (
+          <div className="review-accordion-panel">
+            <div className="flex flex-col" style={{ gap: "var(--space-3)" }}>
+              <Kv label="Full name" value={fullName} />
+              <Kv label="Email" value={email} />
+            </div>
+            <div className="review-accordion-edit">
+              <Button type="button" variant="link" size="sm" onClick={() => setStep(6)}>
+                Edit details
+              </Button>
+            </div>
+          </div>
+        ),
+      },
+      {
+        value: "plan",
+        trigger: (
+          <div className="review-accordion-trigger-main flex min-w-0 flex-1 items-start gap-2">
+            <Shield
+              size={20}
+              className="review-accordion-trigger-icon shrink-0"
+              style={{ color: "var(--color-text-secondary)" }}
+            />
+            <div className="min-w-0 flex-1">
+              <Typography variant="body-md" color="primary" weight="bold">
+                Plan details
+              </Typography>
+              <Typography
+                variant="caption"
+                color="secondary"
+                className="review-accordion-summary mt-0.5 block"
+              >
+                {planLabel}
+              </Typography>
+            </div>
+          </div>
+        ),
+        content: (
+          <div className="review-accordion-panel">
+            <div className="flex flex-col" style={{ gap: "var(--space-3)" }}>
+              <Kv label="Selected plan" value={planLabel} />
+              <Kv label="Third Party plan tenure" value="5 year" />
+              <Kv label="Own Damage plan tenure" value={plan === "comprehensive" ? "1 year" : "—"} />
+              <Kv label="Insured value" value={formatRupees(idv)} />
+              <Kv label="Policy start date" value={policyStart} />
+            </div>
+            <div className="review-accordion-edit">
+              <Button type="button" variant="link" size="sm" onClick={() => setStep(3)}>
+                Edit details
+              </Button>
+            </div>
+          </div>
+        ),
+      },
+    ];
+  }, [
+    bikeBrandModel,
+    email,
+    fullName,
+    idv,
+    plan,
+    planLabel,
+    policyStart,
+    registrationYear,
+    setStep,
+  ]);
+
+  const premiumAccordionItems = useMemo((): AccordionItem[] => {
+    const totalLabel = formatRupees(totalInclGst({ plan, addons }));
+    return [
+      {
+        value: "premium",
+        trigger: (
+          <div className="review-accordion-trigger-main flex min-w-0 flex-1 items-start gap-2">
+            <IndianRupee
+              size={20}
+              className="review-accordion-trigger-icon shrink-0"
+              style={{ color: "var(--color-text-secondary)" }}
+            />
+            <div className="min-w-0 flex-1">
+              <Typography variant="body-md" color="primary" weight="bold">
+                Premium breakup
+              </Typography>
+              <Typography
+                variant="caption"
+                color="secondary"
+                className="review-accordion-summary mt-0.5 block"
+              >
+                {totalLabel} incl. GST
+              </Typography>
+            </div>
+          </div>
+        ),
+        content: <PremiumBreakupDetails />,
+      },
+    ];
+  }, [plan, addons]);
 
   return (
     <div
@@ -52,114 +212,23 @@ export function Review() {
     >
       <MobileHeader title="Review your details" onBack={goBack} />
 
-      <div style={{ marginTop: "var(--journey-header-content-gap)" }}>
+      <div className="flex flex-col w-full" style={{ marginTop: "var(--journey-header-content-gap)", gap: "var(--space-3)" }}>
         <Accordion
-          type="multiple"
-          defaultValue={["bike", "plan", "owner"]}
-          items={[
-            {
-              value: "bike",
-              trigger: (
-                <div className="flex justify-between items-center gap-2 w-full pr-2">
-                  <span className="flex items-start justify-start gap-2 min-w-0">
-                    <Bike size={20} style={{ color: "var(--color-text-secondary)" }} />
-                    <Typography variant="body-md" color="primary" weight="bold">
-                      Bike details
-                    </Typography>
-                  </span>
-                  <Button
-                    type="button"
-                    variant="link"
-                    size="sm"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setStep(1);
-                    }}
-                  >
-                    Edit
-                  </Button>
-                </div>
-              ),
-              content: (
-                <div className="flex flex-col" style={{ gap: "var(--space-3)", paddingBottom: "var(--space-2)" }}>
-                  <Kv label="Brand & model" value={bikeBrandModel} />
-                  <Kv label="Registration year" value={String(registrationYear)} />
-                </div>
-              ),
-            },
-            {
-              value: "plan",
-              trigger: (
-                <div className="flex justify-between items-center gap-2 w-full pr-2">
-                  <span className="flex items-start justify-start gap-2 min-w-0">
-                    <Shield size={20} style={{ color: "var(--color-text-secondary)" }} />
-                    <Typography variant="body-md" color="primary" weight="bold">
-                      Plan details
-                    </Typography>
-                  </span>
-                  <Button
-                    type="button"
-                    variant="link"
-                    size="sm"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setStep(3);
-                    }}
-                  >
-                    Edit
-                  </Button>
-                </div>
-              ),
-              content: (
-                <div className="flex flex-col" style={{ gap: "var(--space-3)", paddingBottom: "var(--space-2)" }}>
-                  <Kv label="Selected plan" value={planLabel} />
-                  <Kv label="Third Party plan tenure" value="5 year" />
-                  <Kv label="Own Damage plan tenure" value={plan === "comprehensive" ? "1 year" : "—"} />
-                  <Kv label="Insured value" value={formatRupees(idv)} />
-                  <Kv label="Policy start date" value={policyStart} />
-                </div>
-              ),
-            },
-            {
-              value: "owner",
-              trigger: (
-                <div className="flex justify-between items-center gap-2 w-full pr-2">
-                  <span className="flex items-start justify-start gap-2 min-w-0">
-                    <User size={20} style={{ color: "var(--color-text-secondary)" }} />
-                    <Typography variant="body-md" color="primary" weight="bold">
-                      Bike owner details
-                    </Typography>
-                  </span>
-                  <Button
-                    type="button"
-                    variant="link"
-                    size="sm"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setStep(6);
-                    }}
-                  >
-                    Edit
-                  </Button>
-                </div>
-              ),
-              content: (
-                <div className="flex flex-col" style={{ gap: "var(--space-3)", paddingBottom: "var(--space-2)" }}>
-                  <Kv label="Full name" value={fullName} />
-                  <Kv label="Email" value={email} />
-                </div>
-              ),
-            },
-          ]}
+          className="review-accordion"
+          type="single"
+          defaultValue="plan"
+          items={accordionItems}
+        />
+        <Accordion
+          className="review-accordion"
+          type="single"
+          defaultValue="premium"
+          items={premiumAccordionItems}
         />
       </div>
 
-      <div style={{ marginTop: "var(--space-4)" }}>
-        <InfoBanner />
-      </div>
-
       <StickyPriceFooter
-        amountLabel={formatRupees(TOTAL_INCL_GST)}
+        amountLabel={formatRupees(totalInclGst({ plan, addons }))}
         gstNote="(Incl. GST)"
         inclusiveGst
         onPremiumBreakup={() => setSheet("premium")}
