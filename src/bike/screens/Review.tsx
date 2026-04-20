@@ -40,7 +40,8 @@ export function Review() {
   const planLabel =
     plan === "comprehensive" ? "Bike Bundled Plan" : "Third-party Plan";
 
-  const accordionItems = useMemo((): AccordionItem[] => {
+  const reviewAccordionItems = useMemo((): AccordionItem[] => {
+    const totalLabel = formatRupees(totalInclGst({ plan, addons }));
     return [
       {
         value: "bike",
@@ -52,7 +53,7 @@ export function Review() {
               style={{ color: "var(--color-text-secondary)" }}
             />
             <div className="min-w-0 flex-1">
-              <Typography variant="body-md" color="primary" weight="bold">
+              <Typography variant="body-md" color="primary" weight="semibold">
                 Bike details
               </Typography>
               <Typography
@@ -89,7 +90,7 @@ export function Review() {
               style={{ color: "var(--color-text-secondary)" }}
             />
             <div className="min-w-0 flex-1">
-              <Typography variant="body-md" color="primary" weight="bold">
+              <Typography variant="body-md" color="primary" weight="semibold">
                 Bike owner details
               </Typography>
               <Typography
@@ -126,7 +127,7 @@ export function Review() {
               style={{ color: "var(--color-text-secondary)" }}
             />
             <div className="min-w-0 flex-1">
-              <Typography variant="body-md" color="primary" weight="bold">
+              <Typography variant="body-md" color="primary" weight="semibold">
                 Plan details
               </Typography>
               <Typography
@@ -156,22 +157,6 @@ export function Review() {
           </div>
         ),
       },
-    ];
-  }, [
-    bikeBrandModel,
-    email,
-    fullName,
-    idv,
-    plan,
-    planLabel,
-    policyStart,
-    registrationYear,
-    setStep,
-  ]);
-
-  const premiumAccordionItems = useMemo((): AccordionItem[] => {
-    const totalLabel = formatRupees(totalInclGst({ plan, addons }));
-    return [
       {
         value: "premium",
         trigger: (
@@ -182,7 +167,7 @@ export function Review() {
               style={{ color: "var(--color-text-secondary)" }}
             />
             <div className="min-w-0 flex-1">
-              <Typography variant="body-md" color="primary" weight="bold">
+              <Typography variant="body-md" color="primary" weight="semibold">
                 Premium breakup
               </Typography>
               <Typography
@@ -195,10 +180,21 @@ export function Review() {
             </div>
           </div>
         ),
-        content: <PremiumBreakupDetails />,
+        content: <PremiumBreakupDetails variant="review" />,
       },
     ];
-  }, [plan, addons]);
+  }, [
+    addons,
+    bikeBrandModel,
+    email,
+    fullName,
+    idv,
+    plan,
+    planLabel,
+    policyStart,
+    registrationYear,
+    setStep,
+  ]);
 
   return (
     <div
@@ -217,13 +213,7 @@ export function Review() {
           className="review-accordion"
           type="single"
           defaultValue="plan"
-          items={accordionItems}
-        />
-        <Accordion
-          className="review-accordion"
-          type="single"
-          defaultValue="premium"
-          items={premiumAccordionItems}
+          items={reviewAccordionItems}
         />
       </div>
 

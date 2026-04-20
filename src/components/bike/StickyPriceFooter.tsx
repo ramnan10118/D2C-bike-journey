@@ -1,4 +1,3 @@
-import { useEffect, useRef } from "react";
 import { Button } from "@acko/button";
 import { Typography } from "@acko/typography";
 
@@ -12,11 +11,6 @@ export interface StickyPriceFooterProps {
   ctaDisabled?: boolean;
   /** When true, show single-line total with (Incl. GST) like review screen */
   inclusiveGst?: boolean;
-  /**
-   * Increments when the selected plan changes (Select plan screen). Triggers a short vertical bump
-   * on the glass bar so the price update feels noticeable.
-   */
-  planBumpTick?: number;
 }
 
 /** Slightly larger than heading-lg for sticky total (journey tokens in index.css :root) */
@@ -41,28 +35,7 @@ export function StickyPriceFooter({
   onCta,
   ctaDisabled,
   inclusiveGst,
-  planBumpTick = 0,
 }: StickyPriceFooterProps) {
-  /** Inner row — plan-bump transform lives here so the glass layer keeps working backdrop-filter. */
-  const bumpRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (planBumpTick === 0) return;
-    const el = bumpRef.current;
-    if (!el) return;
-    el.classList.remove("bike-sticky-price-footer-glass-inner--plan-bump");
-    void el.offsetWidth;
-    el.classList.add("bike-sticky-price-footer-glass-inner--plan-bump");
-    const onEnd = () => {
-      el.classList.remove("bike-sticky-price-footer-glass-inner--plan-bump");
-    };
-    el.addEventListener("animationend", onEnd, { once: true });
-    return () => {
-      el.removeEventListener("animationend", onEnd);
-      el.classList.remove("bike-sticky-price-footer-glass-inner--plan-bump");
-    };
-  }, [planBumpTick]);
-
   return (
     <footer
       className="pointer-events-none fixed inset-x-0 bottom-0 z-[var(--z-sticky)] mx-auto box-border w-full max-w-[var(--layout-mobile-max-width)]"
@@ -76,9 +49,7 @@ export function StickyPriceFooter({
           ...glassPadding,
         }}
       >
-        <div
-          ref={bumpRef}
-          className="bike-sticky-price-footer-glass-inner flex min-w-0 items-center justify-between"
+        <div className="bike-sticky-price-footer-glass-inner flex min-w-0 items-center justify-between"
           style={{ gap: "var(--space-3)" }}
         >
           <div className="min-w-0 flex flex-col" style={{ gap: "var(--space-1)" }}>

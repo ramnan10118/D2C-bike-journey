@@ -1,9 +1,8 @@
-import { useState, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import { Badge } from "@acko/badge";
 import { Checkbox } from "@acko/checkbox";
 import { Typography } from "@acko/typography";
 import { Check } from "lucide-react";
-import { InfoBanner } from "../../components/bike/InfoBanner";
 import { MobileHeader } from "../../components/bike/MobileHeader";
 import { StickyPriceFooter } from "../../components/bike/StickyPriceFooter";
 import {
@@ -200,11 +199,8 @@ export function SelectAddOns() {
   const { addons, setAddons, setSheet, goNext, goBack, plan } = useBikeJourney();
   const amt = footerDisplayAmount({ plan, addons });
 
-  const [addonBumpTick, setAddonBumpTick] = useState(0);
-
   const handleAddonToggle = (key: AddonKey, next: boolean) => {
     setAddons({ [key]: next });
-    setAddonBumpTick((n) => n + 1);
   };
 
   return (
@@ -239,8 +235,6 @@ export function SelectAddOns() {
             stripEnd={a.stripEnd}
           />
         ))}
-
-        <InfoBanner />
       </div>
 
       <StickyPriceFooter
@@ -249,7 +243,6 @@ export function SelectAddOns() {
         onPremiumBreakup={() => setSheet("premium")}
         ctaLabel="Continue"
         onCta={() => goNext()}
-        planBumpTick={addonBumpTick}
       />
     </div>
   );

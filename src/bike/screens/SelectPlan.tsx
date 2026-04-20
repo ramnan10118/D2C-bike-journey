@@ -1,11 +1,10 @@
-import { useEffect, useId, useRef, useState } from "react";
+import { useId } from "react";
 import { Badge } from "@acko/badge";
 import { Button } from "@acko/button";
 import { Card } from "@acko/card";
 import { Separator } from "@acko/separator";
 import { Typography } from "@acko/typography";
 import { Check } from "lucide-react";
-import { InfoBanner } from "../../components/bike/InfoBanner";
 import { MobileHeader } from "../../components/bike/MobileHeader";
 import { StickyPriceFooter } from "../../components/bike/StickyPriceFooter";
 import { footerDisplayAmount, useBikeJourney, type PlanId } from "../../context/BikeJourneyContext";
@@ -168,16 +167,6 @@ export function SelectPlan() {
   } = useBikeJourney();
 
   const amt = footerDisplayAmount({ plan, addons });
-
-  /** Increments when user switches between plans (not on first selection) — drives footer bump */
-  const [planBumpTick, setPlanBumpTick] = useState(0);
-  const prevPlanRef = useRef<PlanId | null>(null);
-  useEffect(() => {
-    if (prevPlanRef.current !== null && prevPlanRef.current !== plan) {
-      setPlanBumpTick((n) => n + 1);
-    }
-    prevPlanRef.current = plan;
-  }, [plan]);
 
   return (
     <>
@@ -342,13 +331,10 @@ export function SelectPlan() {
             </Button>
           </Typography>
         </Card>
-
-        <InfoBanner />
       </div>
       </div>
 
       <StickyPriceFooter
-        planBumpTick={planBumpTick}
         amountLabel={formatRupees(amt)}
         gstNote="+ 18% GST"
         onPremiumBreakup={() => setSheet("premium")}

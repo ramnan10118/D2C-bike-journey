@@ -383,6 +383,36 @@
   padding-right: var(--journey-inline-padding);
 }
 
+/* Review accordion: compact premium breakup (parity with Kv rows); neutralize sheet bleed */
+.review-accordion .review-premium-breakup .bike-sheet-bleed-x {
+  margin-left: 0;
+  margin-right: 0;
+  width: 100%;
+  min-width: 0;
+}
+
+.review-accordion .review-premium-breakup .bike-sheet-kv-row {
+  min-height: 0;
+  padding-block: var(--space-2);
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.review-accordion .review-premium-breakup .premium-breakup-addon-heading {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.review-accordion .review-premium-breakup .premium-breakup-grand-total--review {
+  padding-top: var(--space-3);
+  padding-bottom: 0;
+}
+
+.review-accordion .review-premium-breakup .premium-breakup-grand-total--review.bike-sheet-bleed-x {
+  padding-left: 0;
+  padding-right: 0;
+}
+
 /*
  * Mobile header back: @acko/button iconOnly hides children in .sr-only — the visible
  * glyph must use iconLeft / iconRight (see Button.tsx).
@@ -502,31 +532,6 @@
     0 var(--space-4) var(--space-12) color-mix(in srgb, var(--color-text-primary) 10%, transparent),
     0 var(--space-1) var(--space-3) color-mix(in srgb, var(--color-text-primary) 10%, transparent),
     inset 0 0 0 var(--border-hairline) color-mix(in srgb, var(--grey-white) 28%, transparent);
-}
-
-/* Plan change: nudge inner row only — glass keeps backdrop-filter without `transform` on same node */
-@keyframes bike-sticky-footer-plan-bump {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  35% {
-    transform: translateY(calc(-1 * var(--space-2)));
-  }
-  65% {
-    transform: translateY(var(--space-1));
-  }
-}
-
-.bike-sticky-price-footer-glass-inner--plan-bump {
-  animation: bike-sticky-footer-plan-bump 0.38s var(--ease-out-cubic) both;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .bike-sticky-price-footer-glass-inner--plan-bump {
-    animation: none;
-    transform: none;
-  }
 }
 
 /* Add-on checkbox cards — same 2px border model as plan cards; whole card clickable except checkbox control */
@@ -826,22 +831,6 @@
 .review-accordion .acko-accordion-trigger:hover {
   color: var(--color-text-primary);
   background: color-mix(in srgb, var(--color-card-demoted-bg) 28%, var(--grey-white));
-}
-
-.review-accordion .acko-accordion-trigger[aria-expanded="true"] {
-  align-items: center;
-}
-
-.review-accordion .acko-accordion-trigger[aria-expanded="true"] .review-accordion-trigger-main {
-  align-items: center;
-}
-
-.review-accordion .acko-accordion-trigger[aria-expanded="true"] .review-accordion-trigger-icon {
-  margin-top: 0;
-}
-
-.review-accordion .acko-accordion-trigger[aria-expanded="true"] .review-accordion-summary {
-  display: none;
 }
 
 .review-accordion .acko-accordion-chevron {
