@@ -13,6 +13,19 @@ export interface StickyPriceFooterProps {
   inclusiveGst?: boolean;
 }
 
+/** Slightly larger than heading-lg for sticky total (journey tokens in index.css :root) */
+const amountTypographyStyle = {
+  fontSize: "var(--journey-sticky-footer-amount-size)",
+  lineHeight: "var(--journey-sticky-footer-amount-line)",
+} as const;
+
+const glassPadding = {
+  paddingLeft: "var(--space-5)",
+  paddingRight: "var(--space-5)",
+  paddingTop: "var(--space-5)",
+  paddingBottom: "var(--space-5)",
+} as const;
+
 export function StickyPriceFooter({
   amountLabel,
   gstNote,
@@ -25,77 +38,96 @@ export function StickyPriceFooter({
 }: StickyPriceFooterProps) {
   return (
     <footer
-      className="fixed left-0 right-0 bottom-0 mx-auto w-full"
+      className="pointer-events-none fixed inset-x-0 bottom-0 z-[var(--z-sticky)] mx-auto box-border w-full max-w-[var(--layout-journey-max-width)]"
       style={{
-        maxWidth: "var(--layout-mobile-max-width)",
-        zIndex: "var(--z-sticky)",
-        background: "var(--color-card-elevated-bg)",
-        borderTop: "var(--border-hairline) solid var(--color-border-subtle)",
-        paddingTop: "var(--space-4)",
-        paddingBottom: "calc(var(--space-4) + env(safe-area-inset-bottom, 0px))",
-        paddingLeft: "var(--space-4)",
-        paddingRight: "var(--space-4)",
-        boxShadow: "var(--shadow-md)",
+        paddingBottom: "env(safe-area-inset-bottom, 0px)",
       }}
     >
-      <div className="flex items-end justify-between gap-3">
-        <div className="min-w-0 flex-1">
-          {inclusiveGst ? (
-            <>
-              <div className="flex flex-wrap items-baseline gap-2">
-                <Typography variant="heading-md" color="primary" weight="bold" as="span">
-                  {amountLabel}
-                </Typography>
-                <Typography variant="caption" color="secondary" as="span">
-                  {gstNote}
-                </Typography>
-              </div>
-              {showPremiumLink && onPremiumBreakup ? (
-                <Button
-                  type="button"
-                  variant="link"
-                  size="sm"
-                  className="!px-0 !justify-start"
-                  onClick={onPremiumBreakup}
-                >
-                  Premium breakup
-                </Button>
-              ) : null}
-            </>
-          ) : (
-            <>
-              <div className="flex flex-wrap items-baseline gap-2">
-                <Typography variant="heading-md" color="primary" weight="bold" as="span">
-                  {amountLabel}
-                </Typography>
-                <Typography variant="body-sm" color="secondary" as="span">
-                  {gstNote}
-                </Typography>
-              </div>
-              {showPremiumLink && onPremiumBreakup ? (
-                <Button
-                  type="button"
-                  variant="link"
-                  size="sm"
-                  className="!px-0 !justify-start"
-                  onClick={onPremiumBreakup}
-                >
-                  Premium breakup
-                </Button>
-              ) : null}
-            </>
-          )}
-        </div>
-        <Button
-          type="button"
-          variant="primary"
-          size="lg"
-          disabled={ctaDisabled}
-          onClick={onCta}
-          style={{ flexShrink: 0 }}
+      <div
+        className="bike-sticky-price-footer-glass pointer-events-auto min-w-0"
+        style={{
+          ...glassPadding,
+        }}
+      >
+        <div className="bike-sticky-price-footer-glass-inner flex min-w-0 items-center justify-between"
+          style={{ gap: "var(--space-3)" }}
         >
-          {ctaLabel}
-        </Button>
+          <div className="min-w-0 flex flex-col" style={{ gap: "var(--space-1)" }}>
+            {inclusiveGst ? (
+              <>
+                <div className="flex flex-wrap items-baseline" style={{ gap: "var(--space-2)" }}>
+                  <Typography
+                    variant="heading-lg"
+                    color="primary"
+                    weight="bold"
+                    as="span"
+                    style={amountTypographyStyle}
+                  >
+                    {amountLabel}
+                  </Typography>
+                  <Typography variant="caption" color="secondary" as="span">
+                    {gstNote}
+                  </Typography>
+                </div>
+                {showPremiumLink && onPremiumBreakup ? (
+                  <Button
+                    type="button"
+                    variant="link"
+                    size="sm"
+                    className="!px-0 !justify-start !mt-0 !min-h-0 self-start"
+                    style={{ minHeight: "var(--space-5)", height: "var(--space-5)" }}
+                    onClick={onPremiumBreakup}
+                  >
+                    Premium breakup
+                  </Button>
+                ) : null}
+              </>
+            ) : (
+              <>
+                <div className="flex flex-wrap items-baseline" style={{ gap: "var(--space-2)" }}>
+                  <Typography
+                    variant="heading-lg"
+                    color="primary"
+                    weight="bold"
+                    as="span"
+                    style={amountTypographyStyle}
+                  >
+                    {amountLabel}
+                  </Typography>
+                  <Typography variant="body-sm" color="secondary" as="span">
+                    {gstNote}
+                  </Typography>
+                </div>
+                {showPremiumLink && onPremiumBreakup ? (
+                  <Button
+                    type="button"
+                    variant="link"
+                    size="sm"
+                    className="!px-0 !justify-start !mt-0 !min-h-0 self-start"
+                    style={{ minHeight: "var(--space-5)", height: "var(--space-5)" }}
+                    onClick={onPremiumBreakup}
+                  >
+                    Premium breakup
+                  </Button>
+                ) : null}
+              </>
+            )}
+          </div>
+          <Button
+            type="button"
+            variant="primary"
+            size="md"
+            disabled={ctaDisabled}
+            onClick={onCta}
+            style={{
+              flexShrink: 0,
+              paddingLeft: "var(--space-8)",
+              paddingRight: "var(--space-8)",
+            }}
+          >
+            {ctaLabel}
+          </Button>
+        </div>
       </div>
     </footer>
   );

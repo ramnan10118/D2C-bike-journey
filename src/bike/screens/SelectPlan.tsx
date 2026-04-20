@@ -4,8 +4,7 @@ import { Button } from "@acko/button";
 import { Card } from "@acko/card";
 import { Separator } from "@acko/separator";
 import { Typography } from "@acko/typography";
-import { Bike, Check } from "lucide-react";
-import { InfoBanner } from "../../components/bike/InfoBanner";
+import { Check } from "lucide-react";
 import { MobileHeader } from "../../components/bike/MobileHeader";
 import { StickyPriceFooter } from "../../components/bike/StickyPriceFooter";
 import { footerDisplayAmount, useBikeJourney, type PlanId } from "../../context/BikeJourneyContext";
@@ -18,10 +17,11 @@ function PlanRadioCard({
   setPlan,
   showHighlightBadge,
   title,
-  subtitle,
+  tenurePointers,
   features,
   price,
   strikethrough,
+  onMoreDetails,
 }: {
   groupName: string;
   value: PlanId;
@@ -30,11 +30,12 @@ function PlanRadioCard({
   /** “Most popular” pill above the title (inside the card). */
   showHighlightBadge?: boolean;
   title: string;
-  /** One or two lines of supporting copy, shown below the title (not beside it). */
-  subtitle: string;
+  /** Short tenure lines below the title (same checkmark style as features). */
+  tenurePointers: string[];
   features: string[];
   price: string;
   strikethrough?: string;
+  onMoreDetails: () => void;
 }) {
   const inputId = useId();
   const selected = plan === value;
@@ -60,36 +61,48 @@ function PlanRadioCard({
       </span>
       {showHighlightBadge ? (
         <div className="plan-radio-card-badge-slot">
-          <Badge variant="solid" color="purple" size="md" textCase="sentence">
-            Most popular
-          </Badge>
+          <span className="plan-radio-card-most-popular-shimmer">
+            <Badge
+              variant="solid"
+              color="purple"
+              size="md"
+              textCase="sentence"
+              className="plan-radio-card-most-popular-badge"
+            >
+              Most popular
+            </Badge>
+          </span>
         </div>
       ) : null}
-      <span className="acko-radio-label-content plan-radio-card-main w-full min-w-0">
-        <Typography variant="heading-sm" color="primary" weight="bold">
+      <div className="plan-radio-card-title min-w-0">
+        <Typography
+          variant="heading-sm"
+          color={selected ? "brand" : "primary"}
+          weight="bold"
+          style={{
+            fontSize: "var(--font-heading-sm-size)",
+            lineHeight: "var(--font-heading-sm-line)",
+            fontWeight: 700,
+          }}
+        >
           {title}
         </Typography>
-        <Typography variant="body-sm" color="secondary" style={{ marginTop: "var(--space-2)" }}>
-          {subtitle}
-        </Typography>
-
-        <div
-          className="flex flex-col"
-          style={{ marginTop: "var(--space-4)", gap: "var(--space-3)" }}
-        >
-          <ul className="list-none p-0 m-0 flex flex-col" style={{ gap: "var(--space-3)" }}>
+      </div>
+      <span className="acko-radio-label-content plan-radio-card-main w-full min-w-0">
+        <div className="flex flex-col" style={{ gap: "var(--space-1)" }}>
+          <ul className="plan-radio-card-pointer-list">
+            {tenurePointers.map((line) => (
+              <li key={`t-${line}`} className="plan-radio-card-pointer-item">
+                <Check className="plan-radio-card-pointer-icon" size={18} strokeWidth={2} aria-hidden />
+                <Typography variant="body-sm" color="primary" weight="medium" style={{ margin: 0 }}>
+                  {line}
+                </Typography>
+              </li>
+            ))}
             {features.map((f) => (
-              <li key={f} className="flex gap-2 items-start">
-                <Check
-                  size={18}
-                  style={{
-                    color: "var(--color-success-text)",
-                    flexShrink: 0,
-                    marginTop: "var(--space-1)",
-                  }}
-                  aria-hidden
-                />
-                <Typography variant="body-sm" color="primary">
+              <li key={`f-${f}`} className="plan-radio-card-pointer-item">
+                <Check className="plan-radio-card-pointer-icon" size={18} strokeWidth={2} aria-hidden />
+                <Typography variant="body-sm" color="primary" weight="medium" style={{ margin: 0 }}>
                   {f}
                 </Typography>
               </li>
@@ -100,28 +113,41 @@ function PlanRadioCard({
             variant="link"
             size="sm"
             className="!px-0 !justify-start self-start"
-            onClick={(e) => e.stopPropagation()}
+            style={{ marginTop: "var(--space-1)" }}
+            onClick={(e) => {
+              e.stopPropagation();
+              onMoreDetails();
+            }}
           >
             More details
           </Button>
         </div>
 
-        <div style={{ marginTop: "var(--space-4)" }}>
+        <div style={{ marginTop: "calc(var(--space-4) - var(--space-1))" }}>
           <Separator decorative />
         </div>
 
         <div
-          className="flex flex-wrap items-baseline gap-2"
+          className="flex flex-nowrap justify-start items-center gap-2"
           style={{ marginTop: "var(--space-4)" }}
         >
-          <Typography variant="heading-md" color="primary" weight="bold">
+          <Typography
+            variant="heading-md"
+            color="primary"
+            weight="bold"
+            style={{ fontSize: "var(--font-heading-md-size)", lineHeight: "var(--font-heading-md-line)" }}
+          >
             {price}
           </Typography>
           {strikethrough ? (
             <Typography
-              variant="body-sm"
+              variant="body-md"
               color="secondary"
-              style={{ textDecoration: "line-through" }}
+              style={{
+                textDecoration: "line-through",
+                fontSize: "var(--font-body-md-size)",
+                lineHeight: "var(--font-body-md-line)",
+              }}
             >
               {strikethrough}
             </Typography>
@@ -148,54 +174,109 @@ export function SelectPlan() {
   const amt = footerDisplayAmount({ plan, addons });
 
   return (
-    <div
-      className="min-h-screen"
-      style={{
-        paddingLeft: "var(--space-4)",
-        paddingRight: "var(--space-4)",
-        paddingBottom: "calc(var(--space-28) + env(safe-area-inset-bottom, 0px))",
-        background: "var(--color-card-elevated-bg)",
-      }}
-    >
+    <>
+      <div
+        className="min-h-screen"
+        style={{
+          paddingLeft: "var(--journey-inline-padding)",
+          paddingRight: "var(--journey-inline-padding)",
+          paddingBottom: "calc(var(--journey-sticky-footer-clearance) + env(safe-area-inset-bottom, 0px))",
+          background: "var(--color-card-elevated-bg)",
+        }}
+      >
       <MobileHeader
         title="Select plan"
         onBack={goBack}
-        subtitle={
-          <Typography variant="body-sm" color="secondary" as="p">
-            All plans include 5-year Third-party coverage.{" "}
-            <Button type="button" variant="link" size="sm" className="!inline !p-0">
-              learn more
-            </Button>
-          </Typography>
-        }
+        subtitle={`All plans include 5-year Third-party\u00A0coverage. Learn more`}
+        onLearnMore={() => {}}
       />
 
-      <div className="flex flex-col" style={{ gap: "var(--space-3)", marginTop: "var(--space-4)" }}>
-        <Card variant="outline" padding="md">
-          <div className="flex items-center justify-between gap-3">
-            <Typography variant="body-md" color="primary" weight="bold">
-              {bikeBrandModel || "Your bike"}
-            </Typography>
-            <Button type="button" variant="link" size="sm" onClick={() => setSheet("findBike")}>
+      {/* Gap below header: --journey-header-content-gap in index.css */}
+      <div
+        className="flex flex-col w-full items-stretch"
+        style={{ gap: "var(--space-3)", marginTop: "var(--journey-header-content-gap)" }}
+      >
+        <Card
+          variant="outline"
+          padding="none"
+          style={{
+            paddingLeft: "var(--space-5)",
+            paddingRight: "var(--space-5)",
+            paddingTop: "var(--space-4)",
+            paddingBottom: "var(--space-4)",
+          }}
+        >
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex flex-col items-start min-w-0">
+              <Typography
+                variant="body-sm"
+                color="secondary"
+                weight="medium"
+                style={{
+                  margin: 0,
+                  fontSize: "var(--font-body-sm-size)",
+                  lineHeight: "var(--font-body-sm-line)",
+                }}
+              >
+                Bike details
+              </Typography>
+              <Typography
+                variant="body-md"
+                color="primary"
+                style={{
+                  marginTop: "var(--space-1)",
+                  fontSize: "var(--font-body-md-size)",
+                  lineHeight: "var(--font-body-md-line)",
+                  fontWeight: 800,
+                }}
+              >
+                {bikeBrandModel || "Your bike"}
+              </Typography>
+            </div>
+            <Button type="button" variant="link" size="sm" className="shrink-0" onClick={() => setSheet("findBike")}>
               Edit
             </Button>
           </div>
         </Card>
 
-        <Card variant="outline" padding="md">
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-2 min-w-0">
-              <Bike size={20} style={{ color: "var(--color-text-secondary)", flexShrink: 0 }} />
-              <div>
-                <Typography variant="body-sm" color="secondary">
-                  IDV (Insured value)
-                </Typography>
-                <Typography variant="body-md" color="primary" weight="bold">
-                  {formatRupees(idv)}
-                </Typography>
-              </div>
+        <Card
+          variant="outline"
+          padding="none"
+          style={{
+            paddingLeft: "var(--space-5)",
+            paddingRight: "var(--space-5)",
+            paddingTop: "var(--space-4)",
+            paddingBottom: "var(--space-4)",
+          }}
+        >
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex flex-col items-start min-w-0">
+              <Typography
+                variant="body-sm"
+                color="secondary"
+                weight="medium"
+                style={{
+                  margin: 0,
+                  fontSize: "var(--font-body-sm-size)",
+                  lineHeight: "var(--font-body-sm-line)",
+                }}
+              >
+                IDV (Insured value)
+              </Typography>
+              <Typography
+                variant="body-md"
+                color="primary"
+                style={{
+                  marginTop: "var(--space-1)",
+                  fontSize: "var(--font-body-md-size)",
+                  lineHeight: "var(--font-body-md-line)",
+                  fontWeight: 800,
+                }}
+              >
+                {formatRupees(idv)}
+              </Typography>
             </div>
-            <Button type="button" variant="link" size="sm" onClick={() => setSheet("idv")}>
+            <Button type="button" variant="link" size="sm" className="shrink-0" onClick={() => setSheet("idv")}>
               Edit
             </Button>
           </div>
@@ -218,13 +299,14 @@ export function SelectPlan() {
                 setPlan={setPlan}
                 showHighlightBadge
                 title="Comprehensive Plan"
-                subtitle="1-year Own Damage + 5-year Third-party"
+                tenurePointers={["1-year Own Damage", "5-year Third-party"]}
                 features={[
                   "Covers damage to your bike",
                   "Covers damage caused by your bike to others and their property",
                 ]}
                 price={formatRupees(3874)}
                 strikethrough={formatRupees(4024)}
+                onMoreDetails={() => setSheet("planDetailsComprehensive")}
               />
               <PlanRadioCard
                 groupName={planGroupName}
@@ -232,12 +314,13 @@ export function SelectPlan() {
                 plan={plan}
                 setPlan={setPlan}
                 title="Third-party Plan"
-                subtitle="5-year third party"
+                tenurePointers={["Third-party liability", "5-year coverage"]}
                 features={[
                   "Covers damage caused by your bike to others and their property",
                   "Does not cover damage to your bike",
                 ]}
                 price={formatRupees(3851)}
+                onMoreDetails={() => setSheet("planDetailsThirdParty")}
               />
             </div>
           </div>
@@ -255,8 +338,7 @@ export function SelectPlan() {
             </Button>
           </Typography>
         </Card>
-
-        <InfoBanner />
+      </div>
       </div>
 
       <StickyPriceFooter
@@ -266,6 +348,6 @@ export function SelectPlan() {
         ctaLabel="Continue"
         onCta={() => goNext()}
       />
-    </div>
+    </>
   );
 }
