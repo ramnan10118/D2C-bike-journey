@@ -74,7 +74,7 @@ export function EnterBikeDetails() {
       <footer
         className="fixed left-0 right-0 bottom-0 mx-auto w-full"
         style={{
-          maxWidth: "var(--layout-mobile-max-width)",
+          maxWidth: "var(--layout-journey-max-width)",
           zIndex: "var(--z-sticky)",
           background: "var(--color-card-elevated-bg)",
           borderTop: "var(--border-hairline) solid var(--color-border-subtle)",

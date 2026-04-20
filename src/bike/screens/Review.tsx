@@ -57,7 +57,7 @@ export function Review() {
                 Bike details
               </Typography>
               <Typography
-                variant="caption"
+                variant="body-sm"
                 color="secondary"
                 className="review-accordion-summary mt-0.5 block"
               >
@@ -94,7 +94,7 @@ export function Review() {
                 Bike owner details
               </Typography>
               <Typography
-                variant="caption"
+                variant="body-sm"
                 color="secondary"
                 className="review-accordion-summary mt-0.5 block"
               >
@@ -131,7 +131,7 @@ export function Review() {
                 Plan details
               </Typography>
               <Typography
-                variant="caption"
+                variant="body-sm"
                 color="secondary"
                 className="review-accordion-summary mt-0.5 block"
               >
@@ -171,7 +171,7 @@ export function Review() {
                 Premium breakup
               </Typography>
               <Typography
-                variant="caption"
+                variant="body-sm"
                 color="secondary"
                 className="review-accordion-summary mt-0.5 block"
               >

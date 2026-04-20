@@ -35,7 +35,11 @@
 
 /* Layout + motion — semantic layer (no mobile shell width / sheet duration in token primitives) */
 :root {
-  --layout-mobile-max-width: 26.875rem;
+  /*
+   * Journey column: full width on phones (no side pillarboxing). From 640px up, cap for tablet/desktop.
+   * Design still stress-tests at 360px; this token only controls horizontal max-width in CSS.
+   */
+  --layout-journey-max-width: none;
   --motion-duration-sheet: 200ms;
   /* 20px — mobile horizontal gutter for all journey screens, sticky footer, bottom sheets */
   --journey-inline-padding: var(--space-5);
@@ -52,9 +56,15 @@
   --journey-sticky-footer-amount-size: 28px;
   --journey-sticky-footer-amount-line: 32px;
   --journey-sticky-footer-glass-radius: 36px;
-  /* Inset pill width inside 430px shell — matches content column (430 − 2×20px gutter) */
+  /* Max width of sticky footer glass pill; actual width is min(this, 100% − gutters) */
   --journey-sticky-footer-glass-width: 390px;
   --journey-sticky-footer-glass-min-height: 96px;
+}
+
+@media (min-width: 640px) {
+  :root {
+    --layout-journey-max-width: min(80rem, 100%);
+  }
 }
 
 /* Bottom sheet: overlay fade + panel ease (easing from @acko/tokens) */
@@ -186,6 +196,60 @@
   display: flex;
   flex-direction: column;
   min-height: 0;
+}
+
+/* Plan details sheet — icon + title + description (matches plan education reference) */
+.plan-details-sheet {
+  gap: var(--space-6);
+}
+
+.plan-details-section {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.plan-details-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.plan-details-row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.plan-details-row-icon {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.plan-details-row-icon--positive {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: var(--radius-full);
+  background: var(--color-success);
+  color: var(--grey-white);
+}
+
+.plan-details-row-icon--negative {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: var(--radius-full);
+  background: var(--color-error);
+  color: var(--grey-white);
 }
 
 /** Section label above a list (inset; pairs with full-bleed list below). */
@@ -485,11 +549,11 @@
   width: calc(100% + 2 * var(--journey-inline-padding));
 }
 
-/* `Learn more` inside header subtitle — blue link, no underline (all journey headers) */
+/* `Learn more` inside header subtitle — same token as Button variant="link" (not --color-primary) */
 .mobile-header-learn-more-inline,
 .mobile-header-learn-more-inline:hover,
 .mobile-header-learn-more-inline:visited {
-  color: var(--color-primary);
+  color: var(--color-btn-link-color);
   font-size: inherit;
   font-weight: inherit;
   line-height: inherit;
@@ -497,8 +561,9 @@
 }
 
 .mobile-header-learn-more-inline:focus-visible {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 2px;
+  outline: none;
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-focus-ring);
 }
 
 .mobile-header-plan-subtitle {
@@ -534,11 +599,11 @@
     inset 0 0 0 var(--border-hairline) color-mix(in srgb, var(--grey-white) 28%, transparent);
 }
 
-/* Add-on checkbox cards — same 2px border model as plan cards; whole card clickable except checkbox control */
+/* Add-on checkbox cards — 1px border (idle + selected purple); whole card clickable except checkbox control */
 .addon-select-card {
   box-sizing: border-box;
   width: 100%;
-  border-width: 2px;
+  border-width: 1px;
   border-style: solid;
   border-color: var(--color-card-outline-border);
   border-radius: var(--radius-4xl);
@@ -628,13 +693,12 @@
 }
 
 /*
- * Plan selection cards: always 2px border so switching selection does not jump (1px→2px used to shift layout).
- * Idle: outline border color; selected: primary purple.
+ * Plan selection cards: 1px border idle and selected (purple) so layout does not shift on toggle.
  */
 .plan-radio-card.acko-radio-card-item {
   position: relative;
   box-sizing: border-box;
-  border-width: 2px;
+  border-width: 1px;
   border-style: solid;
   border-color: var(--color-card-outline-border);
   background-color: var(--color-card-elevated-bg);
@@ -646,7 +710,7 @@
 }
 
 .plan-radio-card.acko-radio-card-item.acko-radio-item-selected {
-  border-width: 2px;
+  border-width: 1px;
   border-color: var(--color-primary);
   background-color: var(--color-card-elevated-bg);
 }
@@ -659,13 +723,13 @@
 @media (hover: hover) and (pointer: fine) {
   .plan-radio-card.acko-radio-card-item:hover:not(.acko-radio-item-disabled):not(.acko-radio-item-selected) {
     background-color: var(--color-card-elevated-bg);
-    border-width: 2px;
+    border-width: 1px;
     border-color: var(--color-primary-muted);
   }
 
   .plan-radio-card.acko-radio-card-item.acko-radio-item-selected:hover:not(.acko-radio-item-disabled) {
     background-color: var(--color-card-elevated-bg);
-    border-width: 2px;
+    border-width: 1px;
     border-color: var(--color-primary-hover);
   }
 }
@@ -798,7 +862,7 @@
 .review-accordion .acko-accordion-item {
   margin: 0;
   box-sizing: border-box;
-  border-width: 2px;
+  border-width: 1px;
   border-style: solid;
   border-color: var(--color-card-outline-border);
   border-radius: var(--radius-4xl);
@@ -807,7 +871,7 @@
 }
 
 .review-accordion .acko-accordion-item:last-child {
-  border-bottom-width: 2px;
+  border-bottom-width: 1px;
   border-bottom-style: solid;
   border-bottom-color: var(--color-card-outline-border);
 }
@@ -824,8 +888,9 @@
   border-bottom: var(--border-hairline) solid var(--grey-200);
 }
 
+/* Keep a 1px border slot when collapsed so header height does not jump vs expanded hairline */
 .review-accordion .acko-accordion-item:has(> .acko-accordion-trigger[aria-expanded="false"]) .acko-accordion-trigger {
-  border-bottom: none;
+  border-bottom: var(--border-hairline) solid transparent;
 }
 
 .review-accordion .acko-accordion-trigger:hover {
@@ -843,12 +908,17 @@
   height: 22px;
 }
 
-.review-accordion .acko-accordion-item:has(> .acko-accordion-trigger[aria-expanded="true"]) .acko-accordion-content {
+/*
+ * Padding always on content — do not tie to [aria-expanded=true] or padding vanishes in the same
+ * frame as collapse and fights max-height, causing content to “pop” into the header.
+ */
+.review-accordion .acko-accordion-content {
   padding: var(--space-4) var(--journey-inline-padding) var(--space-5);
 }
 
 .review-accordion .acko-accordion-content-wrapper {
   background: var(--grey-white);
+  overflow: hidden;
 }
 
 .review-accordion-panel {

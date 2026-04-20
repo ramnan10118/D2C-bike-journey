@@ -126,7 +126,7 @@ export function BottomSheet({ title, open, onClose, children, footer }: BottomSh
       <div
         className={`relative w-full mx-auto flex flex-col overflow-hidden bike-bottom-sheet-panel max-h-[70dvh] ${dragging ? "bike-bottom-sheet-panel--dragging" : ""}`}
         style={{
-          maxWidth: "var(--layout-mobile-max-width)",
+          maxWidth: "var(--layout-journey-max-width)",
           background: "var(--color-card-elevated-bg)",
           borderTopLeftRadius: "var(--radius-3xl)",
           borderTopRightRadius: "var(--radius-3xl)",

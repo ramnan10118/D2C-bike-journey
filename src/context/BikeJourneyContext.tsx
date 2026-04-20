@@ -8,7 +8,13 @@ import {
 } from "react";
 
 export type JourneyStep = 1 | 3 | 5 | 6 | 8 | 9;
-export type OverlaySheet = "findBike" | "idv" | "premium" | null;
+export type OverlaySheet =
+  | "findBike"
+  | "idv"
+  | "premium"
+  | "planDetailsComprehensive"
+  | "planDetailsThirdParty"
+  | null;
 export type PlanId = "comprehensive" | "thirdparty";
 
 export const IDV_MIN = 9540;

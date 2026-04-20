@@ -21,6 +21,7 @@ function PlanRadioCard({
   features,
   price,
   strikethrough,
+  onMoreDetails,
 }: {
   groupName: string;
   value: PlanId;
@@ -34,6 +35,7 @@ function PlanRadioCard({
   features: string[];
   price: string;
   strikethrough?: string;
+  onMoreDetails: () => void;
 }) {
   const inputId = useId();
   const selected = plan === value;
@@ -112,7 +114,10 @@ function PlanRadioCard({
             size="sm"
             className="!px-0 !justify-start self-start"
             style={{ marginTop: "var(--space-1)" }}
-            onClick={(e) => e.stopPropagation()}
+            onClick={(e) => {
+              e.stopPropagation();
+              onMoreDetails();
+            }}
           >
             More details
           </Button>
@@ -301,6 +306,7 @@ export function SelectPlan() {
                 ]}
                 price={formatRupees(3874)}
                 strikethrough={formatRupees(4024)}
+                onMoreDetails={() => setSheet("planDetailsComprehensive")}
               />
               <PlanRadioCard
                 groupName={planGroupName}
@@ -314,6 +320,7 @@ export function SelectPlan() {
                   "Does not cover damage to your bike",
                 ]}
                 price={formatRupees(3851)}
+                onMoreDetails={() => setSheet("planDetailsThirdParty")}
               />
             </div>
           </div>

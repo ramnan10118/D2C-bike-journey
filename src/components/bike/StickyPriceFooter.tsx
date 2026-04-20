@@ -38,7 +38,7 @@ export function StickyPriceFooter({
 }: StickyPriceFooterProps) {
   return (
     <footer
-      className="pointer-events-none fixed inset-x-0 bottom-0 z-[var(--z-sticky)] mx-auto box-border w-full max-w-[var(--layout-mobile-max-width)]"
+      className="pointer-events-none fixed inset-x-0 bottom-0 z-[var(--z-sticky)] mx-auto box-border w-full max-w-[var(--layout-journey-max-width)]"
       style={{
         paddingBottom: "env(safe-area-inset-bottom, 0px)",
       }}
