@@ -1,0 +1,999 @@
+@import "tailwindcss";
+
+@import "@acko/tokens/tokens.css";
+@import "@acko/tokens/theme.css";
+
+@import "@acko/css/accordion.css";
+@import "@acko/css/alert.css";
+@import "@acko/css/avatar.css";
+@import "@acko/css/badge.css";
+@import "@acko/css/breadcrumb.css";
+@import "@acko/css/button.css";
+@import "@acko/css/calendar.css";
+@import "@acko/css/card.css";
+@import "@acko/css/checkbox.css";
+@import "@acko/css/dropdown.css";
+@import "@acko/css/field.css";
+@import "@acko/css/input-group.css";
+@import "@acko/css/label.css";
+@import "@acko/css/navigation-wizard.css";
+@import "@acko/css/pagination.css";
+@import "@acko/css/progress.css";
+@import "@acko/css/radio.css";
+@import "@acko/css/scroll-area.css";
+@import "@acko/css/slider.css";
+@import "@acko/css/separator.css";
+@import "@acko/css/skeleton.css";
+@import "@acko/css/switch.css";
+@import "@acko/css/table.css";
+@import "@acko/css/tabs.css";
+@import "@acko/css/text-input.css";
+@import "@acko/css/textarea.css";
+@import "@acko/css/toggle.css";
+@import "@acko/css/tooltip.css";
+@import "@acko/css/typography.css";
+
+/* Layout + motion — semantic layer (no mobile shell width / sheet duration in token primitives) */
+:root {
+  /*
+   * Journey column: full width on phones (no side pillarboxing). From 640px up, cap for tablet/desktop.
+   * Design still stress-tests at 360px; this token only controls horizontal max-width in CSS.
+   */
+  --layout-journey-max-width: none;
+  --motion-duration-sheet: 200ms;
+  /* 20px — mobile horizontal gutter for all journey screens, sticky footer, bottom sheets */
+  --journey-inline-padding: var(--space-5);
+  /* Space from MobileHeader (below title/subtitle) to the main page content — every journey step */
+  --journey-header-content-gap: var(--space-4);
+  /*
+   * Scrollable page bottom padding above fixed StickyPriceFooter (inset liquid-glass bar + float margin).
+   * (--space-28 does not exist in @acko/tokens; invalid var collapsed clearance and hid content behind the footer.)
+   */
+  --journey-sticky-footer-clearance: calc(var(--space-24) + var(--space-12) + var(--space-3));
+  /* Backdrop blur for StickyPriceFooter liquid-glass material (glass-lab reference) */
+  --journey-liquid-glass-blur: 37px;
+  /* Footer total amount — between heading-lg (24px) and heading-xl (32px) */
+  --journey-sticky-footer-amount-size: 28px;
+  --journey-sticky-footer-amount-line: 32px;
+  --journey-sticky-footer-glass-radius: 36px;
+  /* Max width of sticky footer glass pill; actual width is min(this, 100% − gutters) */
+  --journey-sticky-footer-glass-width: 390px;
+  --journey-sticky-footer-glass-min-height: 96px;
+}
+
+@media (min-width: 640px) {
+  :root {
+    --layout-journey-max-width: min(80rem, 100%);
+  }
+}
+
+/* Phones ≤ 390px: shrink the sticky-footer amount so the price row stays single
+   line even when amounts grow to 5 digits. Doesn't touch 412+ visuals. */
+@media (max-width: 390px) {
+  :root {
+    --journey-sticky-footer-amount-size: 24px;
+    --journey-sticky-footer-amount-line: 28px;
+  }
+}
+
+/* Bottom sheet: overlay fade + panel ease (easing from @acko/tokens) */
+.bike-bottom-sheet-backdrop {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  cursor: pointer;
+  background: var(--color-surface-overlay);
+  opacity: 0;
+  transition: opacity var(--motion-duration-sheet) var(--ease-out-cubic);
+}
+
+.bike-bottom-sheet-backdrop--open {
+  opacity: 1;
+}
+
+.bike-bottom-sheet-panel {
+  transition: transform var(--motion-duration-sheet) var(--ease-out-cubic);
+  will-change: transform;
+}
+
+.bike-bottom-sheet-panel--dragging {
+  transition: none;
+}
+
+.bike-bottom-sheet-header {
+  position: relative;
+  z-index: 2;
+  background: var(--color-card-elevated-bg);
+}
+
+/* Grab area: drag down to dismiss (min touch target via padding) */
+.bike-bottom-sheet-grab-area {
+  touch-action: none;
+  cursor: grab;
+  padding-block: var(--space-3);
+  margin-block: calc(-1 * var(--space-3));
+}
+
+.bike-bottom-sheet-grab-area:active {
+  cursor: grabbing;
+}
+
+/* Grab handle — pill; dismiss also via backdrop */
+.bike-bottom-sheet-grab {
+  width: 36px;
+  height: 4px;
+  border-radius: var(--radius-full);
+  background: var(--color-border-subtle);
+  pointer-events: none;
+}
+
+/* Find bike sheet: placeholder-only search (label kept for a11y, visually hidden) */
+.find-bike-search-input .acko-text-input-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.find-bike-search-input {
+  position: relative;
+}
+
+/*
+ * Find-bike search: one ring — strip DS focus box-shadow; constant 2px border (no negative margin,
+ * avoids clipping / misaligned bounds with overflow). Unfocused vs focus = border-color only.
+ */
+.find-bike-search-input .acko-text-input-wrapper {
+  border-width: 2px;
+  border-style: solid;
+  box-shadow: none;
+}
+
+.find-bike-search-input .acko-text-input-wrapper.acko-text-input-focused {
+  border-color: var(--color-input-focus-border);
+  outline: none;
+}
+
+/* Hide any UA search decorations if type is ever search again */
+.find-bike-search-input input::-webkit-search-cancel-button,
+.find-bike-search-input input::-webkit-search-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+  display: none;
+}
+
+/* Lucide clear — neutral; DS makes icon-right primary when focused */
+.find-bike-search-input .find-bike-search-clear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  line-height: 0;
+  transition: color 150ms ease, background-color 150ms ease;
+}
+
+.find-bike-search-input .find-bike-search-clear:hover {
+  color: var(--color-text-primary);
+}
+
+.find-bike-search-input .find-bike-search-clear:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.find-bike-search-input .acko-text-input-focused .acko-text-input-icon-right {
+  color: var(--color-text-secondary);
+}
+
+/* ─── Journey bottom sheets: shared list & breakup layout ─── */
+
+.bike-sheet-body {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* Plan details sheet — icon + title + description (matches plan education reference) */
+.plan-details-sheet {
+  gap: var(--space-6);
+}
+
+.plan-details-section {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.plan-details-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.plan-details-row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.plan-details-row-icon {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.plan-details-row-icon--positive {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: var(--radius-full);
+  background: var(--color-success);
+  color: var(--grey-white);
+}
+
+.plan-details-row-icon--negative {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: var(--radius-full);
+  background: var(--color-error);
+  color: var(--grey-white);
+}
+
+/** Section label above a list (inset; pairs with full-bleed list below). */
+.bike-sheet-section-heading {
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/** Pull list/key rows to sheet horizontal edges; restore text inset on children. */
+.bike-sheet-bleed-x {
+  margin-left: calc(-1 * var(--journey-inline-padding));
+  margin-right: calc(-1 * var(--journey-inline-padding));
+  min-width: 0;
+  width: calc(100% + 2 * var(--journey-inline-padding));
+  max-width: none;
+  box-sizing: border-box;
+}
+
+/* ScrollArea must fill the bleed track so list rows span full width (hover fills edge-to-edge). */
+.bike-sheet-list-wrap .acko-scroll-area {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.bike-sheet-list {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 var(--space-2);
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.bike-sheet-list > li {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+/*
+ * Row button: no horizontal padding on the button itself so hover/active background
+ * paints edge-to-edge; inset lives on .bike-sheet-list-row-inner.
+ */
+.bike-sheet-list-row {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-bottom: var(--border-hairline) solid var(--color-border-subtle);
+  border-radius: 0;
+  background: var(--color-card-elevated-bg);
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  box-sizing: border-box;
+  transition: background-color var(--motion-duration-sheet) var(--ease-out-cubic);
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.bike-sheet-list-row-inner {
+  display: flex;
+  align-items: center;
+  min-height: 48px;
+  padding: var(--space-3) var(--journey-inline-padding);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.bike-sheet-list-row:last-child {
+  border-bottom: none;
+}
+
+.bike-sheet-list-row:hover {
+  background: var(--color-surface-raised);
+}
+
+.bike-sheet-list-row:active {
+  background: var(--color-surface-raised-hover);
+}
+
+.bike-sheet-list-row:focus {
+  outline: none;
+}
+
+.bike-sheet-list-row:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: -2px;
+  position: relative;
+  z-index: 1;
+}
+
+/** Empty / zero state inside a scroll region */
+.bike-sheet-empty {
+  padding: var(--space-10) var(--journey-inline-padding);
+  text-align: center;
+}
+
+/** Premium breakup & similar key–value stacks (aligned with sheet list spacing) */
+.bike-sheet-breakup {
+  display: flex;
+  flex-direction: column;
+  /* Tight gap so Discount sits close to the net-premium divider */
+  gap: var(--space-1);
+  min-height: 0;
+}
+
+.bike-sheet-kv-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-4);
+  min-height: 48px;
+  padding: var(--space-3) var(--journey-inline-padding);
+  border-bottom: var(--border-hairline) solid var(--color-border-subtle);
+}
+
+.bike-sheet-breakup-bleed .bike-sheet-kv-row:last-child {
+  border-bottom: none;
+  padding-bottom: var(--space-2);
+}
+
+/* Remove divider below a row (e.g. group Own Damage + Discount) */
+.bike-sheet-kv-row--no-divider-below {
+  border-bottom: none;
+}
+
+.bike-sheet-breakup-total {
+  /* Space below the divider line to "Net premium" (not Discount→line) */
+  padding-top: var(--space-4);
+  border-top: var(--border-hairline) solid var(--color-border-subtle);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/* Dotted 1px hairlines everywhere in this sheet; solid 1px only above Total */
+.premium-breakup-details .bike-sheet-kv-row {
+  border-bottom: 1px dotted var(--grey-200);
+}
+
+.premium-breakup-details .bike-sheet-kv-row--no-divider-below {
+  border-bottom: none;
+}
+
+.premium-breakup-addon-heading {
+  padding: var(--space-3) var(--journey-inline-padding) var(--space-2);
+}
+
+/* One dotted line under the whole add-on block — not under each row */
+.premium-breakup-addon-list {
+  display: flex;
+  flex-direction: column;
+  border-bottom: 1px dotted var(--grey-200);
+}
+
+.premium-breakup-addon-list .bike-sheet-kv-row {
+  border-bottom: none;
+}
+
+/*
+ * When the upper bleed block ends with a normal kv row (no add-ons), restore the dotted line.
+ * Overrides the generic breakup-bleed rule that removed the last kv border.
+ */
+.premium-breakup-details .bike-sheet-breakup-bleed > .bike-sheet-kv-row:last-child {
+  border-bottom: 1px dotted var(--grey-200);
+}
+
+.premium-breakup-net-gst {
+  padding-top: 0;
+}
+
+/* No line between Net premium and 18% GST (Net row uses noDividerBelow) */
+
+/* Single rule before Total: drop GST row bottom border so it doesn't stack with Total's top border */
+.premium-breakup-net-gst .bike-sheet-kv-row:last-child {
+  border-bottom: none;
+  padding-bottom: var(--space-2);
+}
+
+.premium-breakup-grand-total {
+  margin-top: 0;
+  padding: var(--space-4) var(--journey-inline-padding) 0;
+  border-top: 1px solid var(--grey-200);
+  box-sizing: border-box;
+}
+
+.premium-breakup-grand-total.bike-sheet-bleed-x {
+  padding-left: var(--journey-inline-padding);
+  padding-right: var(--journey-inline-padding);
+}
+
+/* Review accordion: compact premium breakup (parity with Kv rows); neutralize sheet bleed */
+.review-accordion .review-premium-breakup .bike-sheet-bleed-x {
+  margin-left: 0;
+  margin-right: 0;
+  width: 100%;
+  min-width: 0;
+}
+
+.review-accordion .review-premium-breakup .bike-sheet-kv-row {
+  min-height: 0;
+  padding-block: var(--space-2);
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.review-accordion .review-premium-breakup .premium-breakup-addon-heading {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.review-accordion .review-premium-breakup .premium-breakup-grand-total--review {
+  padding-top: var(--space-3);
+  padding-bottom: 0;
+}
+
+.review-accordion .review-premium-breakup .premium-breakup-grand-total--review.bike-sheet-bleed-x {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+/*
+ * Mobile header back: @acko/button iconOnly hides children in .sr-only — the visible
+ * glyph must use iconLeft / iconRight (see Button.tsx).
+ * Mobile-first: no hover/active background pill; DS ghost adds surface on hover.
+ */
+.mobile-header-back {
+  color: var(--color-text-primary);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mobile-header-back.acko-btn,
+.mobile-header-back.acko-btn:hover,
+.mobile-header-back.acko-btn:active,
+.mobile-header-back.acko-btn:focus {
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+.mobile-header-back.acko-btn:focus-visible {
+  background: transparent !important;
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.mobile-header-back.acko-btn:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/*
+ * Button DS forces .acko-btn-sm .acko-btn-icon to ~14px — Lucide size={…} is ignored.
+ * Let the back chevron render at 1.5× a typical 22px glyph (33px).
+ */
+.mobile-header-back .acko-btn-icon {
+  width: 24px;
+  height: 24px;
+}
+
+.mobile-header-back .acko-btn-icon svg {
+  width: 100%;
+  height: 100%;
+  stroke: currentColor;
+  color: var(--color-text-primary);
+}
+
+/*
+ * Same left edge as title/body: DS icon-only buttons are fixed width and center the
+ * glyph — the chevron sat ~8px right of the text column. Flush icon to the content edge.
+ */
+.mobile-header-back.acko-btn {
+  justify-content: flex-start;
+}
+
+.mobile-header-back.acko-btn-icon-only.acko-btn-sm {
+  width: auto;
+  min-width: 44px;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.mobile-header-back .acko-btn-content {
+  justify-content: flex-start;
+}
+
+/* Full-bleed divider under nav (offsets parent horizontal padding on plan screen). */
+.mobile-header-divider-bleed {
+  box-sizing: border-box;
+  margin-left: calc(-1 * var(--journey-inline-padding));
+  margin-right: calc(-1 * var(--journey-inline-padding));
+  width: calc(100% + 2 * var(--journey-inline-padding));
+}
+
+/* `Learn more` inside header subtitle — same token as Button variant="link" (not --color-primary) */
+.mobile-header-learn-more-inline,
+.mobile-header-learn-more-inline:hover,
+.mobile-header-learn-more-inline:visited {
+  color: var(--color-btn-link-color);
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+  text-decoration: none;
+}
+
+.mobile-header-learn-more-inline:focus-visible {
+  outline: none;
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-focus-ring);
+}
+
+.mobile-header-plan-subtitle {
+  width: 100%;
+  max-width: 100%;
+  text-wrap: wrap;
+  line-height: var(--font-body-md-line);
+}
+
+/*
+ * Sticky price footer — liquid glass L1+R1 (inset pill).
+ * Glass-lab style: specular inset edges + dual outer depth + ring; blur via --journey-liquid-glass-blur.
+ */
+.bike-sticky-price-footer-glass {
+  box-sizing: border-box;
+  width: min(var(--journey-sticky-footer-glass-width), calc(100% - 2 * var(--journey-inline-padding)));
+  max-width: var(--journey-sticky-footer-glass-width);
+  min-height: var(--journey-sticky-footer-glass-min-height);
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: var(--space-5);
+  background-color: color-mix(in srgb, var(--color-surface-raised) 35%, transparent);
+  -webkit-backdrop-filter: blur(var(--journey-liquid-glass-blur)) saturate(1.05) brightness(1);
+  backdrop-filter: blur(var(--journey-liquid-glass-blur)) saturate(1.05) brightness(1);
+  border: var(--border-hairline) solid color-mix(in srgb, var(--grey-white) 25%, transparent);
+  border-radius: var(--journey-sticky-footer-glass-radius);
+  box-shadow:
+    inset 0 var(--border-hairline) var(--border-hairline) 0 color-mix(in srgb, var(--grey-white) 50%, transparent),
+    inset 0 calc(-1 * var(--border-hairline)) var(--border-hairline) 0
+      color-mix(in srgb, var(--grey-white) 10%, transparent),
+    0 var(--space-4) var(--space-12) color-mix(in srgb, var(--color-text-primary) 10%, transparent),
+    0 var(--space-1) var(--space-3) color-mix(in srgb, var(--color-text-primary) 10%, transparent),
+    inset 0 0 0 var(--border-hairline) color-mix(in srgb, var(--grey-white) 28%, transparent);
+}
+
+/* Add-on checkbox cards — 1px border (idle + selected purple); whole card clickable except checkbox control */
+.addon-select-card {
+  box-sizing: border-box;
+  width: 100%;
+  border-width: 1px;
+  border-style: solid;
+  border-color: var(--color-card-outline-border);
+  border-radius: var(--radius-4xl);
+  background: var(--grey-white);
+  padding: var(--space-5);
+  cursor: pointer;
+  transition:
+    border-color 150ms ease,
+    background-color 150ms ease;
+}
+
+.addon-select-card--selected {
+  border-color: var(--color-primary);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .addon-select-card:hover:not(.addon-select-card--selected) {
+    border-color: var(--color-primary-muted);
+  }
+
+  .addon-select-card--selected:hover {
+    border-color: var(--color-primary-hover);
+  }
+}
+
+/* Add-on cards (strip layout): full-width top strip; same light grey when idle or selected (selection = border only) */
+.addon-select-card--strip {
+  padding: 0;
+  overflow: hidden;
+}
+
+.addon-strip {
+  display: flex;
+  width: 100%;
+  box-sizing: border-box;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+  background: color-mix(in srgb, var(--color-card-demoted-bg) 22%, var(--grey-white));
+  border-bottom: var(--border-hairline) solid var(--grey-200);
+}
+
+.addon-strip-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: var(--space-4) var(--space-5) var(--space-5);
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+}
+
+/* Add-on cards: pointer list — 8px between rows; space-2 + 8px above and below dotted price line */
+.addon-pointer-list {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 calc(var(--space-2) + var(--space-2)) 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.addon-strip-price-row {
+  position: relative;
+  margin-top: 0;
+  padding-top: calc(var(--space-2) + var(--space-2));
+  border-top: none;
+}
+
+/* Clear dot pattern (visible gaps) — browser `dotted` is often too tight */
+.addon-strip-price-row::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  /* Shorter period = more dots across the width (2px mark + 3px gap, repeats every 5px) */
+  background: repeating-linear-gradient(
+    to right,
+    var(--grey-200) 0,
+    var(--grey-200) 2px,
+    transparent 2px,
+    transparent 5px
+  );
+}
+
+/*
+ * Plan selection cards: 1px border idle and selected (purple) so layout does not shift on toggle.
+ */
+.plan-radio-card.acko-radio-card-item {
+  position: relative;
+  box-sizing: border-box;
+  border-width: 1px;
+  border-style: solid;
+  border-color: var(--color-card-outline-border);
+  background-color: var(--color-card-elevated-bg);
+  padding: var(--space-5);
+  border-radius: var(--radius-4xl);
+  transition:
+    border-color 150ms ease,
+    background-color 150ms ease;
+}
+
+.plan-radio-card.acko-radio-card-item.acko-radio-item-selected {
+  border-width: 1px;
+  border-color: var(--color-primary);
+  background-color: var(--color-card-elevated-bg);
+}
+
+/* Override @acko/css .acko-radio-card-item:focus-within { box-shadow } — selection border is enough; keyboard focus uses .acko-radio-native:focus-visible + .acko-radio-circle */
+.plan-radio-card.acko-radio-card-item:focus-within {
+  box-shadow: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .plan-radio-card.acko-radio-card-item:hover:not(.acko-radio-item-disabled):not(.acko-radio-item-selected) {
+    background-color: var(--color-card-elevated-bg);
+    border-width: 1px;
+    border-color: var(--color-primary-muted);
+  }
+
+  .plan-radio-card.acko-radio-card-item.acko-radio-item-selected:hover:not(.acko-radio-item-disabled) {
+    background-color: var(--color-card-elevated-bg);
+    border-width: 1px;
+    border-color: var(--color-primary-hover);
+  }
+}
+
+/* Plan card: badge row full-width; radio aligns with plan title; pointers live in main (full width). */
+.plan-radio-card.plan-radio-card--plan-grid.acko-radio-card-item {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: var(--space-3);
+  row-gap: var(--space-2);
+  /* Center radio with title row: start alignment made the small circle sit high vs cap height */
+  align-items: center;
+}
+
+.plan-radio-card.plan-radio-card--plan-grid:not(.plan-radio-card--has-badge) {
+  grid-template-areas:
+    "radio title"
+    "main main";
+}
+
+.plan-radio-card.plan-radio-card--plan-grid.plan-radio-card--has-badge {
+  grid-template-areas:
+    "badge badge"
+    "radio title"
+    "main main";
+}
+
+.plan-radio-card-radio {
+  grid-area: radio;
+}
+
+.plan-radio-card-badge-slot {
+  grid-area: badge;
+  justify-self: start;
+  /* Full-width row so left edge lines up with radio column (not column 2 only). */
+  width: 100%;
+}
+
+/* Shimmer sweep on "Most popular" — highlight stays behind label text */
+.plan-radio-card-most-popular-shimmer {
+  display: inline-flex;
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-full);
+  vertical-align: middle;
+}
+
+.plan-radio-card-most-popular-shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(
+    100deg,
+    transparent 0%,
+    transparent 38%,
+    rgb(255 255 255 / 0.42) 50%,
+    transparent 62%,
+    transparent 100%
+  );
+  width: 180%;
+  left: -40%;
+  animation: plan-radio-card-badge-shimmer 2.6s ease-in-out infinite;
+}
+
+.plan-radio-card-most-popular-badge {
+  position: relative;
+  z-index: 2;
+  margin-bottom: 2px;
+}
+
+@keyframes plan-radio-card-badge-shimmer {
+  0% {
+    transform: translateX(-28%);
+  }
+
+  100% {
+    transform: translateX(28%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .plan-radio-card-most-popular-shimmer::after {
+    animation: none;
+    opacity: 0;
+  }
+}
+
+.plan-radio-card-title {
+  grid-area: title;
+}
+
+/* Tenure + coverage rows: one list, shared type + vertical rhythm */
+.plan-radio-card-pointer-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.plan-radio-card-pointer-item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.plan-radio-card-pointer-item .plan-radio-card-pointer-icon {
+  flex-shrink: 0;
+  margin-top: var(--space-1);
+  color: var(--color-success-text);
+}
+
+.plan-radio-card-main {
+  grid-area: main;
+  margin-top: 0;
+  /* Title row → pointers: grid row-gap + this padding */
+  padding-top: calc(var(--space-2) + var(--space-1));
+  gap: 0;
+}
+
+.review-accordion.acko-accordion {
+  gap: var(--space-3);
+}
+
+.review-accordion .acko-accordion-item {
+  margin: 0;
+  box-sizing: border-box;
+  border-width: 1px;
+  border-style: solid;
+  border-color: var(--color-card-outline-border);
+  border-radius: var(--radius-4xl);
+  overflow: hidden;
+  background: var(--grey-white);
+}
+
+.review-accordion .acko-accordion-item:last-child {
+  border-bottom-width: 1px;
+  border-bottom-style: solid;
+  border-bottom-color: var(--color-card-outline-border);
+}
+
+.review-accordion .acko-accordion-trigger {
+  align-items: flex-start;
+  padding: var(--space-5) var(--journey-inline-padding);
+  gap: var(--space-2);
+  min-height: 3.25rem;
+  font-size: var(--font-body-lg-size);
+  line-height: 1.35;
+  color: var(--color-text-primary);
+  background: color-mix(in srgb, var(--color-card-demoted-bg) 22%, var(--grey-white));
+  border-bottom: var(--border-hairline) solid var(--grey-200);
+}
+
+.review-accordion .acko-accordion-item:has(> .acko-accordion-trigger[aria-expanded="false"]) .acko-accordion-trigger {
+  border-bottom: none;
+}
+
+.review-accordion .acko-accordion-trigger:hover {
+  color: var(--color-text-primary);
+  background: color-mix(in srgb, var(--color-card-demoted-bg) 28%, var(--grey-white));
+}
+
+.review-accordion .acko-accordion-trigger[aria-expanded="true"] {
+  align-items: center;
+}
+
+.review-accordion .acko-accordion-trigger[aria-expanded="true"] .review-accordion-trigger-main {
+  align-items: center;
+}
+
+.review-accordion .acko-accordion-trigger[aria-expanded="true"] .review-accordion-trigger-icon {
+  margin-top: 0;
+}
+
+.review-accordion .acko-accordion-trigger[aria-expanded="true"] .review-accordion-summary {
+  display: none;
+}
+
+.review-accordion .acko-accordion-chevron {
+  width: 22px;
+  height: 22px;
+}
+
+.review-accordion .acko-accordion-chevron svg {
+  width: 22px;
+  height: 22px;
+}
+
+.review-accordion .acko-accordion-item:has(> .acko-accordion-trigger[aria-expanded="true"]) .acko-accordion-content {
+  padding: var(--space-4) var(--journey-inline-padding) var(--space-5);
+}
+
+.review-accordion .acko-accordion-content-wrapper {
+  background: var(--grey-white);
+}
+
+.review-accordion-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.review-accordion-edit {
+  margin: 0;
+  padding: 0;
+}
+
+.content-container {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding-inline: var(--journey-inline-padding);
+}
+
+@media (min-width: 768px) {
+  .content-container {
+    padding-inline: var(--space-8);
+  }
+}
+
+@media (min-width: 1024px) {
+  .content-container {
+    padding-inline: var(--space-10);
+  }
+}
+
+body {
+  font-family: "Euclid Circular B", -apple-system, BlinkMacSystemFont, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: var(--color-surface);
+}
+
+h1, h2, h3 { text-wrap: balance; }
+p { text-wrap: pretty; }
+
+button, a, input, select, label {
+  touch-action: manipulation;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+:focus:not(:focus-visible) { outline: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
