@@ -161,11 +161,12 @@ function MobileHeaderSection() {
       pkg="@acko/page-header"
       description='Journey page header: back chevron, h1 title, optional subtitle with an inline "Learn more" link that fires a callback or follows an href.'
     >
+      {/* Title is clipped — font size TBD. Only the nav bar is shown. */}
       <div className="flex flex-col gap-6">
         <div>
           <VariantLabel>No back button</VariantLabel>
           <PhoneFrame>
-            <div className="px-[var(--space-5)]">
+            <div className="px-[var(--space-5)] overflow-hidden" style={{ height: "65px" }}>
               <MobileHeader title="Enter your bike details" />
             </div>
           </PhoneFrame>
@@ -174,7 +175,7 @@ function MobileHeaderSection() {
         <div>
           <VariantLabel>With back button</VariantLabel>
           <PhoneFrame>
-            <div className="px-[var(--space-5)]">
+            <div className="px-[var(--space-5)] overflow-hidden" style={{ height: "65px" }}>
               <MobileHeader title="Select add-ons" onBack={() => {}} />
             </div>
           </PhoneFrame>
@@ -183,7 +184,7 @@ function MobileHeaderSection() {
         <div>
           <VariantLabel>With subtitle + learn more link</VariantLabel>
           <PhoneFrame>
-            <div className="px-[var(--space-5)]">
+            <div className="px-[var(--space-5)] overflow-hidden" style={{ height: "65px" }}>
               <MobileHeader
                 title="Select plan"
                 onBack={() => {}}
@@ -247,15 +248,33 @@ function StickyPriceFooterSection() {
         </Button>
       </div>
 
-      {/* Non-fixed preview — renders the glass pill inline */}
+      {/* Non-fixed preview — glass pill floats over simulated page content */}
       <PhoneFrame>
-        <div className="h-16 bg-[var(--color-surface)] px-5 flex items-center">
-          <Typography variant="body-sm" color="secondary">
-            ↑ scrollable page content
-          </Typography>
-        </div>
-        <div className="px-[var(--journey-inline-padding)] pb-5">
-          <div className="bike-sticky-price-footer-glass w-full pointer-events-auto min-w-0 px-[var(--space-5)] py-[var(--space-5)]">
+        <div className="relative">
+          {/* Simulated page content — gives the backdrop-filter something to blur */}
+          <div className="bg-[var(--color-card-elevated-bg)] px-5 pt-4 pb-32 flex flex-col gap-0">
+            <Typography variant="label-sm" color="secondary" weight="semibold" className="mb-3 uppercase tracking-widest">
+              Selected plan
+            </Typography>
+            {[
+              { label: "Comprehensive Plan (1yr OD + 5yr TP)", value: "₹3,874" },
+              { label: "Zero Depreciation Cover", value: "₹36" },
+              { label: "Personal Accident Cover", value: "₹350" },
+              { label: "Roadside Assistance", value: "₹150" },
+            ].map(({ label, value }) => (
+              <div
+                key={label}
+                className="flex justify-between items-center py-3 border-b border-[var(--color-border-subtle)]"
+              >
+                <Typography variant="body-sm" color="secondary">{label}</Typography>
+                <Typography variant="body-sm" color="primary" weight="semibold">{value}</Typography>
+              </div>
+            ))}
+          </div>
+
+          {/* Glass pill — absolute over the content */}
+          <div className="absolute bottom-0 left-0 right-0 px-[var(--journey-inline-padding)] pb-4">
+            <div className="bike-sticky-price-footer-glass w-full pointer-events-auto min-w-0 px-[var(--space-5)] py-[var(--space-5)]">
             <div className="flex min-w-0 items-center justify-between gap-[var(--space-3)]">
               <div className="min-w-0 flex flex-col gap-[var(--space-1)]">
                 <div className="flex flex-wrap items-baseline gap-[var(--space-2)]">
@@ -301,7 +320,8 @@ function StickyPriceFooterSection() {
               </Button>
             </div>
           </div>
-        </div>
+          </div>{/* end glass pill */}
+        </div>{/* end relative */}
       </PhoneFrame>
 
       <BottomSheet
